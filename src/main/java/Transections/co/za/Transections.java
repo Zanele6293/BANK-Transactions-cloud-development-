@@ -44,7 +44,11 @@ public class Transections {
            } else {
            }
        }
-       return (isInt) ? Integer.parseInt(inputFromUser) : 0;  //This turns what we type in the input to an Integer
+       if(isInt){
+       return Integer.parseInt(inputFromUser);      // If this whole it is an integer, It will be turned into an Integer.
+       }else{
+        System.out.println(RED+"Enter the correct Amount!" + RESET);
+        return 0;}  
     }
 
     public void income(int money){
