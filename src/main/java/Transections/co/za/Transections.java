@@ -44,7 +44,7 @@ public class Transections {
            } else {
            }
        }
-       return (isInt) ? Integer.parseInt(inputFromUser) : 0;//This turns what we type in the input to an Integer
+       return (isInt) ? Integer.parseInt(inputFromUser) : 0;  //This turns what we type in the input to an Integer
     }
 
     public void income(int money){
