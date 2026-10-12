@@ -16,7 +16,18 @@ public class TransactionController {
     }
 
     private double calculateBalanceForUser(String username) {
-        return 0;
+        List<Transaction> transactions = repository.findAll();
+        double balance = INITIAL_BALANCE; // Starts at 0.0
+        for (Transaction tx : transactions) {
+            if (tx.getUsername() != null && tx.getUsername().equalsIgnoreCase(username)) {
+                if (tx.getType().equals("INCOME")) {
+                    balance += tx.getAmount();
+                } else {
+                    balance -= tx.getAmount();
+                }
+            }
+        }
+        return balance;
     }
 
 }
