@@ -1,9 +1,11 @@
 package transections.co.za;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
 public class Main {
     public static void main(String[] args) {
-        Transections newTransection = new Transections(7000);
-        newTransection.Running();
-        
+        SpringApplication.run(Main.class, args);
     }
-
 }
