@@ -15,4 +15,8 @@ public class TransactionController {
         this.repository = repository;
     }
 
+    private double calculateBalanceForUser(String username) {
+        return 0;
+    }
+
 }
