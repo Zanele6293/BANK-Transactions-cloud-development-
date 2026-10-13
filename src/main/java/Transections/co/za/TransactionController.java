@@ -56,4 +56,11 @@ public class TransactionController {
         return calculateBalanceForUser(username);
     }
 
+    @GetMapping("/history")
+    public List<Transaction> getHistory(@RequestParam String username) {
+        List<Transaction> allTransactions = repository.findAll();
+        return allTransactions.stream()
+                .filter(tx -> tx.getUsername() != null && tx.getUsername().equalsIgnoreCase(username))
+                .toList();
+    }
 }
