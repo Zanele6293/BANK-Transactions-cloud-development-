@@ -37,4 +37,18 @@ public class TransactionController {
         return repository.save(tx);
     }
 
+    @PostMapping("/expense")
+    public Object withdraw(@RequestParam String username, @RequestParam double amount) {
+        if (amount <= 0) return "Error: Amount must be greater than zero.";
+        double currentBalance = calculateBalanceForUser(username);
+
+        // Checking if there are sufficient funds!
+        if (currentBalance < amount) {
+            return "❌ Insufficient Balance! Current Balance is R" + currentBalance;
+        }
+
+        Transaction tx = new Transaction(username, "EXPENSE", amount, LocalDate.now());
+        return repository.save(tx);
+    }
+
 }
