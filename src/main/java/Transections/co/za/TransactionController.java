@@ -30,4 +30,11 @@ public class TransactionController {
         return balance;
     }
 
+    @PostMapping("/income")
+    public Object deposit(@RequestParam String username, @RequestParam double amount) {
+        if (amount <= 0) return "Error: Amount must be greater than zero.";
+        Transaction tx = new Transaction(username, "INCOME", amount, LocalDate.now());
+        return repository.save(tx);
+    }
+
 }
