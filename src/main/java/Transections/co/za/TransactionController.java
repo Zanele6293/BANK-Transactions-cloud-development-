@@ -51,4 +51,9 @@ public class TransactionController {
         return repository.save(tx);
     }
 
+    @GetMapping("/balance")
+    public double getBalance(@RequestParam String username) {
+        return calculateBalanceForUser(username);
+    }
+
 }
