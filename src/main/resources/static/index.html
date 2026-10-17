@@ -16,6 +16,7 @@
     <br>
     <button onclick="login()">Log In / Register</button>
 </div>
+
 <!-- Main App Section -->
 <div id="app-section">
     <div class="card">
@@ -31,11 +32,23 @@
         <p id="message"></p>
         <button class="logout" onclick="logout()">Log Out</button>
     </div>
+
     <!-- Transection History -->
     <div class="card">
         <h3>Transaction History</h3>
         <button onclick="fetchHistory()">Refresh History</button>
-
+        <table>
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Amount (R)</th>
+            </tr>
+            </thead>
+            <tbody id="history-table-body">
+            <!-- Populated dynamically -->
+            </tbody>
+        </table>
     </div>
 </div>
 </body>
