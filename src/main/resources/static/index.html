@@ -23,6 +23,13 @@
         <p>Current Balance:</p>
         <div id="balance">R0.00</div>
 
+        <input type="number" id="amount" placeholder="Enter amount (R)">
+        <br>
+        <button class="deposit" onclick="performAction('income')">Deposit</button>
+        <button class="withdraw" onclick="performAction('expense')">Withdraw</button>
+
+        <p id="message"></p>
+        <button class="logout" onclick="logout()">Log Out</button>
     </div>
 
 </body>
