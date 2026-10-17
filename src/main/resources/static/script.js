@@ -18,3 +18,8 @@ function logout() {
     document.getElementById('app-section').style.display = 'none';
     document.getElementById('login-section').style.display = 'block';
 }
+
+async function refreshData() {
+    fetchBalance();
+    fetchHistory();
+}
