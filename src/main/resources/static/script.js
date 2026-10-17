@@ -11,3 +11,10 @@ function login(){
 
     refreshData();
 }
+
+function logout() {
+    currentUser = "";
+    document.getElementById('username-input').value = "";
+    document.getElementById('app-section').style.display = 'none';
+    document.getElementById('login-section').style.display = 'block';
+}
