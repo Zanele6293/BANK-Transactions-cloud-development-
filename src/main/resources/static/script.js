@@ -23,3 +23,9 @@ async function refreshData() {
     fetchBalance();
     fetchHistory();
 }
+
+async function fetchBalance() {
+    let response = await fetch(`/api/transactions/balance?username=${currentUser}`);
+    let balance = await response.text();
+    document.getElementById('balance').innerText = "R " + balance;
+}
