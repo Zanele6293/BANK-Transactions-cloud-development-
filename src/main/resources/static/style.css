@@ -34,3 +34,15 @@ button {
 button.deposit {
     background-color: #28a745;
 }
+
+button.withdraw {
+    background-color: #dc3545;
+}
+
+button.logout {
+    background-color: #6c757d;
+}
+
+#app-section, #history-section {
+    display: none;
+}
