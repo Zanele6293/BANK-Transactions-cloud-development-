@@ -167,30 +167,6 @@ public class TransactionController {
         return repository.save(tx);
     }
 
-    @GetMapping("/investments")
-    public List<Transaction> getInvestments(@RequestParam String username) {
-        String cleanName = capitalize(username.trim());
-        List<Transaction> all = repository.findAll();
-        LocalDate today = LocalDate.now();
-
-        for (Transaction tx : all) {
-            if (tx.getUsername() != null && tx.getUsername().equalsIgnoreCase(cleanName) && "INVESTMENT".equals(tx.getType()) && tx.isActiveInvestment()) {
-                if (today.isAfter(tx.getMaturityDate()) || today.isEqual(tx.getMaturityDate())) {
-                    tx.setActiveInvestment(false);
-                    repository.save(tx);
-
-                    double payout = tx.getAmount() * 1.05;
-                    Transaction reward = new Transaction(cleanName, null, "MATURED_PAYOUT", payout, LocalDate.now(), null, null);
-                    repository.save(reward);
-                }
-            }
-        }
-
-        return repository.findAll().stream()
-                .filter(tx -> tx.getUsername() != null && tx.getUsername().equalsIgnoreCase(cleanName) && "INVESTMENT".equals(tx.getType()))
-                .collect(Collectors.toList());
-    }
-
     @GetMapping("/history")
     public List<Transaction> getHistory(@RequestParam String username) {
         String cleanName = capitalize(username.trim());
