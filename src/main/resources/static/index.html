@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zionex Finacial</title>
+    <title>Zionex Financial</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,43 +22,87 @@
         <button class="secondary" onclick="logout()">Log out</button>
     </div>
 
+    <div class="content-body">
 
-<!-- Main App Section -->
-<div id="app-section">
-    <div class="card">
-        <h2>Hello, <span id="display-user"></span>!</h2>
-        <p>Current Balance:</p>
-        <div id="balance">R0.00</div>
+        <!-- AUTH SCREEN -->
+        <div id="auth-screen" class="card">
+            <img src="logo.png" class="tree-logo" alt="Logo" onerror="this.style.display='none'">
+            <h2 style="margin:5px 0; color:#1a1a1a;">Zionex Financial</h2>
+            <div class="tagline">"Growing your wealth, securing your future."</div>
 
-        <input type="number" id="amount" placeholder="Enter amount (R)">
-        <br>
-        <button class="deposit" onclick="performAction('income')">Deposit</button>
-        <button class="withdraw" onclick="performAction('expense')">Withdraw</button>
+            <div id="login-box">
+                <h3>Secure Login</h3>
+                <input type="text" id="login-username" placeholder="Username">
+                <input type="password" id="login-password" placeholder="Password">
+                <button onclick="loginUser()">Sign In</button>
+                <p style="font-size:13px; margin-top:15px;">New here? <a href="#" onclick="toggleAuthMode()" style="color:var(--primary-green);">Create an account</a></p>
+            </div>
 
-        <p id="message"></p>
-        <button class="logout" onclick="logout()">Log Out</button>
-    </div>
+            <div id="register-box" style="display:none;">
+                <h3>Open an Account</h3>
+                <input type="text" id="reg-username" placeholder="First Name">
+                <input type="text" id="reg-surname" placeholder="Surname">
+                <input type="password" id="reg-password" placeholder="Secure Password">
+                <input type="number" id="reg-deposit" placeholder="Initial Deposit (Min R150)">
+                <p style="font-size: 11px; text-align:left; color:#666; margin:5px 0;">Profile Picture (Optional):</p>
+                <input type="file" id="reg-image" accept="image/*" style="border:none; padding:0;">
+                <button onclick="registerUser()">Register Account</button>
+                <p style="font-size:13px; margin-top:15px;">Have an account? <a href="#" onclick="toggleAuthMode()" style="color:var(--primary-green);">Sign In</a></p>
+            </div>
 
-    <!-- Transection History -->
-    <div class="card">
-        <h3>Transaction History</h3>
-        <button onclick="fetchHistory()">Refresh History</button>
-        <table>
-            <thead>
-            <tr>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Amount (R)</th>
-            </tr>
-            </thead>
-            <tbody id="history-table-body">
-            <!-- Populated dynamically -->
-                </tbody>
-            </table>
+            <p id="auth-msg" class="error-msg"></p>
         </div>
+
+                </div>
+            </div>
+
+            <!-- INVESTMENTS TAB -->
+            <div id="view-investments" style="display:none;">
+                <div class="card">
+                    <h2>7-Day Growth Fund</h2>
+                    <p style="font-size:12px; color:#666;">Lock funds for 7 days to earn guaranteed **5% interest** maturity payout.</p>
+
+                    <input type="number" id="invest-amount" placeholder="Investment Amount (R)">
+                    <button onclick="makeInvestment()">Start 7-Day Plan</button>
+                    <p id="invest-msg" class="error-msg"></p>
+                </div>
+
+                <div class="card" style="text-align: left;">
+                    <h4 style="margin-top:0;">Active Growth Portfolios</h4>
+                    <div id="investment-list"></div>
+                </div>
+            </div>
+
+            <!-- HISTORY TAB -->
+            <div id="view-history" style="display:none;">
+                <div class="card">
+                    <h2>Activity Ledger</h2>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                        </tr>
+                        </thead>
+                        <tbody id="history-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
     </div>
+
+    <!-- APP NAVIGATION BAR -->
+    <div id="app-nav" class="nav-bar" style="display:none;">
+        <button onclick="switchView('overview')">🏠 Home</button>
+        <button onclick="switchView('investments')">📈 Invest</button>
+        <button onclick="switchView('history')">📜 History</button>
+    </div>
+
 </div>
-<!-- Linked JavaScript File -->
+
 <script src="script.js"></script>
 </body>
 </html>
