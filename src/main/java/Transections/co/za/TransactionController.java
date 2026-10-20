@@ -115,8 +115,18 @@ public class TransactionController {
         return repository.save(savingsTx);
     }
 
+    @PostMapping("/invest")
+    public Object invest(@RequestParam String username, @RequestParam double amount) {
+        if (amount <= 0) return "ERROR:Invalid amount.";
+        double currentBalance = getCurrentBalance(username);
+        if (currentBalance < amount) {
+            return "ERROR:Insufficient funds for this 7-day investment.";
+        }
 
-
+        LocalDate maturity = LocalDate.now().plusDays(7);
+        Transaction tx = new Transaction(capitalize(username.trim()), "INVESTMENT", amount, LocalDate.now(), true, maturity);
+        return repository.save(tx);
+    }
 
     @GetMapping("/history")
     public List<Transaction> getHistory(@RequestParam String username) {
