@@ -3,19 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Finance Tracker</title>
+    <title>Zionex Finacial</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- Login section -->
-<div id="login-section" class="card">
-    <h2>Welcome to Finance Tracker</h2>
-    <p>Enter your name to access your account:</p>
-    <input type="text" id="username-input" placeholder="e.g. Zanele">
-    <br>
-    <button onclick="login()">Log In / Register</button>
-</div>
+<div class="phone-frame">
+
+    <!-- App Header -->
+    <div id="app-header" class="app-header" style="display:none;">
+        <div style="display:flex; align-items:center; gap:8px;">
+            <!-- On the Auth/Login Screen -->
+            <img src="logo.png" class="tree-logo" alt="Zionex Tree Logo" onerror="this.src='https://cdn.pixabay.com/photo/2021/01/21/16/42/tree-5937965_1280.png'">            <div>
+            <strong id="header-name" style="font-size: 13px;">User</strong><br>
+            <span style="font-size: 10px; color: #666;">Zionex Personal Banking</span>
+        </div>
+        </div>
+        <button class="secondary" onclick="logout()">Log out</button>
+    </div>
+
 
 <!-- Main App Section -->
 <div id="app-section">
@@ -47,11 +53,11 @@
             </thead>
             <tbody id="history-table-body">
             <!-- Populated dynamically -->
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
-
 <!-- Linked JavaScript File -->
 <script src="script.js"></script>
 </body>
