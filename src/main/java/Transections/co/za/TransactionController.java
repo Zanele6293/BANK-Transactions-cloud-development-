@@ -78,7 +78,30 @@ public class TransactionController {
         return balance;
     }
 
+    @GetMapping("/balance/savings")
+    public double getSavingsBalance(@RequestParam String username) {
+        String cleanName = capitalize(username.trim());
+        List<Transaction> transactions = repository.findAll();
+        LocalDate today = LocalDate.now();
+        double balance = 0.0;
 
+        for (Transaction tx : transactions) {
+            if (tx.getUsername() != null && tx.getUsername().equalsIgnoreCase(cleanName)) {
+                if ("SAVINGS_INCOME".equals(tx.getType()) || "SAVINGS_TRANSFER_IN".equals(tx.getType())) {
+                    double actualAmount = tx.getAmount();
+
+                    // CHECK IF 2 MONTHS (60 DAYS) HAVE PASSED FOR INTEREST PAYOUT
+                    if (tx.getDate() != null && today.isAfter(tx.getDate().plusDays(60))) {
+                        actualAmount *= 1.089; // Apply the 8.9% interest after 2 months!
+                    }
+                    balance += actualAmount;
+                } else if ("SAVINGS_EXPENSE".equals(tx.getType())) {
+                    balance -= tx.getAmount();
+                }
+            }
+        }
+        return balance;
+    }
 
     @PostMapping("/current/income")
     public Object currentDeposit(@RequestParam String username, @RequestParam double amount) {
@@ -114,6 +137,7 @@ public class TransactionController {
         Transaction savingsTx = new Transaction(cleanName, null, "SAVINGS_INCOME", amount, LocalDate.now(), null, null);
         return repository.save(savingsTx);
     }
+
 
     @PostMapping("/invest")
     public Object invest(@RequestParam String username, @RequestParam double amount) {
