@@ -1,31 +1,27 @@
-let currentUser="";
+let currentUser = "";
 
-function login(){
-    let input = document.getElementById("username-input").value.trim();
-    if(!input){ alert("Please enter a username");return;}
-    currentUser=input;
+function toggleAuthMode() {
+    let loginBox = document.getElementById('login-box');
+    let regBox = document.getElementById('register-box');
+    let msg = document.getElementById('auth-msg');
+    msg.innerText = "";
 
-    document.getElementById("display-user").innerText=currentUser;
-    document.getElementById("login-section").style.display="none";
-    document.getElementById("app-section").style.display="block";
-
-    refreshData();
+    if (loginBox.style.display === "none") {
+        loginBox.style.display = "block";
+        regBox.style.display = "none";
+    } else {
+        loginBox.style.display = "none";
+        regBox.style.display = "block";
+    }
 }
 
-function logout() {
-    currentUser = "";
-    document.getElementById('username-input').value = "";
-    document.getElementById('app-section').style.display = 'none';
-    document.getElementById('login-section').style.display = 'block';
+function formatName(text) {
+    if (!text) return "";
+    text = text.trim().toLowerCase();
+    return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-async function refreshData() {
-    fetchBalance();
-    fetchHistory();
-}
-
-async function fetchBalance() {
-    let response = await fetch(`/api/transactions/balance?username=${currentUser}`);
-    let balance = await response.text();
-    document.getElementById('balance').innerText = "R " + balance;
+function toggleAccount(id) {
+    let box = document.getElementById(id);
+    box.style.display = box.style.display === "block" ? "none" : "block";
 }
