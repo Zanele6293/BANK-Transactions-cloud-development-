@@ -107,3 +107,16 @@ async function loginUser() {
         switchView('overview');
     }
 }
+
+function logout() {
+    currentUser = "";
+    document.getElementById('dashboard-screen').style.display = 'none';
+    document.getElementById('auth-screen').style.display = 'block';
+    document.getElementById('app-header').style.display = 'none';
+    document.getElementById('app-nav').style.display = 'none';
+    document.getElementById('login-username').value = "";
+    document.getElementById('login-password').value = "";
+    document.getElementById('auth-msg').innerText = "";
+}
+
+
