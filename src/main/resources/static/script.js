@@ -54,3 +54,24 @@ async function registerUser() {
     }
 }
 
+async function sendRegistration(username, surname, password, deposit, image) {
+    let formData = new URLSearchParams();
+    formData.append("username", username);
+    formData.append("surname", surname);
+    formData.append("password", password);
+    formData.append("initialDeposit", deposit);
+    formData.append("profileImage", image);
+
+    let response = await fetch('/api/transactions/register', { method: 'POST', body: formData });
+    let result = await response.text();
+
+    let msgBox = document.getElementById('auth-msg');
+    if (result.startsWith("ERROR:")) {
+        msgBox.className = "error-msg";
+        msgBox.innerText = result.replace("ERROR:", "");
+    } else {
+        msgBox.className = "success-msg";
+        msgBox.innerText = "Account created! Please sign in.";
+        toggleAuthMode();
+    }
+}
