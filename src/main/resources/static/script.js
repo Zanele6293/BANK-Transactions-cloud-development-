@@ -75,3 +75,35 @@ async function sendRegistration(username, surname, password, deposit, image) {
         toggleAuthMode();
     }
 }
+
+async function loginUser() {
+    let username = document.getElementById('login-username').value.trim();
+    let password = document.getElementById('login-password').value;
+    let msgBox = document.getElementById('auth-msg');
+
+    if (!username || !password) {
+        msgBox.innerText = "Enter both username and password.";
+        return;
+    }
+
+    let formData = new URLSearchParams();
+    formData.append("username", username);
+    formData.append("password", password);
+
+    let response = await fetch('/api/transactions/login', { method: 'POST', body: formData });
+    let result = await response.text();
+
+    if (result.startsWith("ERROR:")) {
+        msgBox.className = "error-msg";
+        msgBox.innerText = result.replace("ERROR:", "");
+    } else {
+        currentUser = username;
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('dashboard-screen').style.display = 'block';
+        document.getElementById('app-header').style.display = 'flex';
+        document.getElementById('app-nav').style.display = 'flex';
+
+        loadUserProfile();
+        switchView('overview');
+    }
+}
