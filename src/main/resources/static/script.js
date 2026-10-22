@@ -25,3 +25,32 @@ function toggleAccount(id) {
     let box = document.getElementById(id);
     box.style.display = box.style.display === "block" ? "none" : "block";
 }
+
+async function registerUser() {
+    let username = document.getElementById('reg-username').value.trim();
+    let surname = document.getElementById('reg-surname').value.trim();
+    let password = document.getElementById('reg-password').value;
+    let deposit = document.getElementById('reg-deposit').value;
+    let fileInput = document.getElementById('reg-image');
+    let msgBox = document.getElementById('auth-msg');
+
+    if (!username || !surname || !password || !deposit) {
+        msgBox.innerText = "Please fill in all account fields.";
+        return;
+    }
+
+    let defaultAvatar = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
+    let base64Image = defaultAvatar;
+
+    if (fileInput.files && fileInput.files[0]) {
+        let reader = new FileReader();
+        reader.readAsDataURL(fileInput.files[0]);
+        reader.onload = async function () {
+            base64Image = reader.result;
+            await sendRegistration(username, surname, password, deposit, base64Image);
+        };
+    } else {
+        await sendRegistration(username, surname, password, deposit, base64Image);
+    }
+}
+
