@@ -205,3 +205,27 @@ async function performSavingsAction(type) {
         fetchBalances();
     }
 }
+
+async function makeInvestment() {
+    let amount = document.getElementById('invest-amount').value;
+    let msgBox = document.getElementById('invest-msg');
+    if (!amount) { msgBox.innerText = "Enter amount"; return; }
+
+    let formData = new URLSearchParams();
+    formData.append("username", currentUser);
+    formData.append("amount", amount);
+
+    let response = await fetch(`/api/transactions/invest`, { method: 'POST', body: formData });
+    let result = await response.text();
+
+    if (result.startsWith("ERROR:")) {
+        msgBox.className = "error-msg";
+        msgBox.innerText = result.replace("ERROR:", "");
+    } else {
+        msgBox.className = "success-msg";
+        msgBox.innerText = "Investment locked successfully!";
+        document.getElementById('invest-amount').value = "";
+        fetchBalances();
+        fetchInvestments();
+    }
+}
