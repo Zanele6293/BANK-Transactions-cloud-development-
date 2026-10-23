@@ -252,3 +252,20 @@ async function fetchInvestments() {
         container.innerHTML += item;
     });
 }
+
+async function fetchHistory() {
+    let response = await fetch(`/api/transactions/history?username=${currentUser}`);
+    let history = await response.json();
+
+    let tbody = document.getElementById('history-table-body');
+    tbody.innerHTML = "";
+
+    history.forEach(tx => {
+        let row = `<tr>
+            <td>${tx.date}</td>
+            <td><b>${tx.type}</b></td>
+            <td>R ${tx.amount.toFixed(2)}</td>
+        </tr>`;
+        tbody.innerHTML += row;
+    });
+}
