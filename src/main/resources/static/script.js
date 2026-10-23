@@ -150,3 +150,12 @@ async function loadUserProfile() {
     fetchBalances();
 }
 
+async function fetchBalances() {
+    let resCurrent = await fetch(`/api/transactions/balance/current?username=${currentUser}`);
+    let currentBal = await resCurrent.text();
+    document.getElementById('current-balance').innerText = "R " + parseFloat(currentBal).toFixed(2);
+
+    let resSavings = await fetch(`/api/transactions/balance/savings?username=${currentUser}`);
+    let savingsBal = await resSavings.text();
+    document.getElementById('savings-balance').innerText = "R " + parseFloat(savingsBal).toFixed(2);
+}
