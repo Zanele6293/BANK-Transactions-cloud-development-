@@ -38,21 +38,46 @@ body {
     border-bottom: 1px solid #eee;
 }
 
-.card {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    display: inline-block;
-    width: 450px;
-    margin-bottom: 20px;
+.app-header img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--primary-green);
 }
 
-input, button {
-    padding: 10px;
-    margin: 8px 0;
-    width: 90%;
-    font-size: 16px;
+.content-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.card {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+
+.digital-card {
+    width: 100%;
+    max-width: 370px;
+    height: 215px;
+    background: linear-gradient(105deg, #011c10 0%, #01321c 35%, #006837 70%, #00a859 100%);
+    color: white;
+    padding: 18px 22px 14px 22px;
+    box-sizing: border-box;
+    border-radius: 16px;
+    text-align: left;
+    margin: 0 auto 20px auto;
+    box-shadow: 0 12px 30px rgba(0, 40, 15, 0.5);
+    position: relative;
+    overflow: hidden;
+    font-family: 'Courier New', Courier, monospace;
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 button {
