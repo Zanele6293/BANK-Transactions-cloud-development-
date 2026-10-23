@@ -159,3 +159,26 @@ async function fetchBalances() {
     let savingsBal = await resSavings.text();
     document.getElementById('savings-balance').innerText = "R " + parseFloat(savingsBal).toFixed(2);
 }
+
+async function performCurrentAction(type) {
+    let amount = document.getElementById('current-amount').value;
+    let msgBox = document.getElementById('current-msg');
+    if (!amount) { msgBox.innerText = "Enter amount"; return; }
+
+    let formData = new URLSearchParams();
+    formData.append("username", currentUser);
+    formData.append("amount", amount);
+
+    let endpoint = type === 'income' ? '/api/transactions/current/income' : '/api/transactions/current/expense';
+    let response = await fetch(endpoint, { method: 'POST', body: formData });
+    let result = await response.text();
+
+    if (result.startsWith("ERROR:")) {
+        msgBox.className = "error-msg";
+        msgBox.innerText = result.replace("ERROR:", "");
+    } else {
+        msgBox.innerText = "";
+        document.getElementById('current-amount').value = "";
+        fetchBalances();
+    }
+}
