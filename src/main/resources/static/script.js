@@ -119,4 +119,34 @@ function logout() {
     document.getElementById('auth-msg').innerText = "";
 }
 
+function switchView(viewName) {
+    document.getElementById('view-overview').style.display = 'none';
+    document.getElementById('view-investments').style.display = 'none';
+    document.getElementById('view-history').style.display = 'none';
+
+    if (viewName === 'overview') {
+        document.getElementById('view-overview').style.display = 'block';
+        fetchBalances();
+    } else if (viewName === 'investments') {
+        document.getElementById('view-investments').style.display = 'block';
+        fetchInvestments();
+    } else if (viewName === 'history') {
+        document.getElementById('view-history').style.display = 'block';
+        fetchHistory();
+    }
+}
+
+async function loadUserProfile() {
+    let response = await fetch(`/api/transactions/profile?username=${currentUser}`);
+    let profile = await response.json();
+
+    document.getElementById('header-name').innerText = profile.username + " " + profile.surname;
+    document.getElementById('welcome-name').innerText = profile.username + " " + profile.surname;
+    document.getElementById('card-holder-name').innerText = (profile.username + " " + profile.surname).toUpperCase();
+
+    if (profile.profileImage) {
+        document.getElementById('header-avatar').src = profile.profileImage;
+    }
+    fetchBalances();
+}
 
