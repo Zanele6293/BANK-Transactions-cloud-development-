@@ -99,4 +99,29 @@ body {
     z-index: 2;
 }
 
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0px;
+}
+
+.bank-brand {
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 2.5px;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+}
+
+.card-chip {
+    width: 36px;
+    height: 26px;
+    background: linear-gradient(135deg, #f3d354 0%, #ffe875 40%, #c69209 100%);
+    border-radius: 4px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
+    border: 1px solid #7c6004;
+}
 
