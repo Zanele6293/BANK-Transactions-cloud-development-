@@ -182,3 +182,26 @@ async function performCurrentAction(type) {
         fetchBalances();
     }
 }
+
+async function performSavingsAction(type) {
+    let amount = document.getElementById('savings-amount').value;
+    let msgBox = document.getElementById('savings-msg');
+    if (!amount) { msgBox.innerText = "Enter amount"; return; }
+
+    let formData = new URLSearchParams();
+    formData.append("username", currentUser);
+    formData.append("amount", amount);
+
+    let endpoint = type === 'income' ? '/api/transactions/savings/income' : '/api/transactions/savings/expense';
+    let response = await fetch(endpoint, { method: 'POST', body: formData });
+    let result = await response.text();
+
+    if (result.startsWith("ERROR:")) {
+        msgBox.className = "error-msg";
+        msgBox.innerText = result.replace("ERROR:", "");
+    } else {
+        msgBox.innerText = "";
+        document.getElementById('savings-amount').value = "";
+        fetchBalances();
+    }
+}
