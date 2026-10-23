@@ -229,3 +229,26 @@ async function makeInvestment() {
         fetchInvestments();
     }
 }
+
+async function fetchInvestments() {
+    let response = await fetch(`/api/transactions/investments?username=${currentUser}`);
+    let investments = await response.json();
+
+    let container = document.getElementById('investment-list');
+    container.innerHTML = "";
+
+    if (investments.length === 0) {
+        container.innerHTML = "<p style='font-size:12px; color:#777;'>No active portfolios found.</p>";
+        return;
+    }
+
+    investments.forEach(inv => {
+        let status = inv.activeInvestment ? "🟢 Growing (+5% locked)" : "✅ Matured & Paid Out";
+        let item = `<div style="background:#f1f3f5; padding:8px; border-radius:6px; margin-bottom:6px; font-size:12px;">
+            <strong>R ${inv.amount.toFixed(2)}</strong><br>
+            Maturity: ${inv.maturityDate}<br>
+            <span>${status}</span>
+        </div>`;
+        container.innerHTML += item;
+    });
+}
