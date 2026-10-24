@@ -125,3 +125,23 @@ body {
     border: 1px solid #7c6004;
 }
 
+.card-number {
+    font-size: 18px;
+    letter-spacing: 3px;
+    margin: 15px 0 0 0; /* Positioned nicely in the middle */
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+}
+
+
+.card-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 15px;
+}
+
+.card-holder-container {
+    display: flex;
+    flex-direction: column;
+}
