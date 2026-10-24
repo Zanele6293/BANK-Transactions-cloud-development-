@@ -145,3 +145,43 @@ body {
     display: flex;
     flex-direction: column;
 }
+
+.card-holder {
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+    font-weight: bold;
+}
+
+.card-label {
+    font-size: 7px;
+    letter-spacing: 1px;
+    color: #cbd5e1;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+.card-exp-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.card-exp {
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+
+.card-visa {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-style: italic;
+    font-weight: 900;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+}
