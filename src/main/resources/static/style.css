@@ -61,7 +61,7 @@ body {
     text-align: center;
 }
 
-
+/* Real-World Bank Card Structure */
 .digital-card {
     width: 100%;
     max-width: 370px;
@@ -133,7 +133,7 @@ body {
     text-shadow: 0 2px 4px rgba(0,0,0,0.8);
 }
 
-
+/* Realistic bottom positioning: labels are underneath the text */
 .card-info-row {
     display: flex;
     justify-content: space-between;
@@ -186,6 +186,7 @@ body {
     text-shadow: 0 2px 4px rgba(0,0,0,0.6);
 }
 
+/* Interactive Account Accordion Cards */
 .account-box {
     background: white;
     border-radius: 12px;
@@ -212,4 +213,98 @@ input, select {
     font-size: 14px;
     border: 1px solid #ddd;
     border-radius: 6px;
+}
+
+button {
+    padding: 10px;
+    width: 100%;
+    margin: 6px 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    background-color: var(--primary-green);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: var(--dark-green);
+}
+
+button.secondary {
+    background-color: #6c757d;
+    width: auto;
+    padding: 5px 10px;
+    font-size: 11px;
+}
+
+.tree-logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border: 3px solid var(--primary-green);
+    box-shadow: 0 4px 10px rgba(0, 168, 89, 0.3);
+}
+
+.tagline {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.error-msg {
+    color: #dc3545;
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.success-msg {
+    color: var(--primary-green);
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    border-bottom: 1px solid #eee;
+    padding: 8px 4px;
+    text-align: center;
+    font-size: 12px;
+}
+
+th {
+    background-color: #f1f3f5;
+    color: #333;
+}
+
+.nav-bar {
+    display: flex;
+    justify-content: space-around;
+    background: white;
+    padding: 10px 0;
+    border-top: 1px solid #eee;
+}
+
+.nav-bar button {
+    background: none;
+    color: #555;
+    font-size: 11px;
+    width: auto;
+    margin: 0;
+    padding: 0;
+}
+
+.view-section {
+    display: none;
 }
