@@ -13,11 +13,11 @@
     <!-- App Header -->
     <div id="app-header" class="app-header" style="display:none;">
         <div style="display:flex; align-items:center; gap:8px;">
-            <!-- On the Auth/Login Screen -->
-            <img src="logo.png" class="tree-logo" alt="Zionex Tree Logo" onerror="this.src='https://cdn.pixabay.com/photo/2021/01/21/16/42/tree-5937965_1280.png'">            <div>
-            <strong id="header-name" style="font-size: 13px;">User</strong><br>
-            <span style="font-size: 10px; color: #666;">Zionex Personal Banking</span>
-        </div>
+            <img id="header-avatar" src="logo.png" alt="Avatar" onerror="this.src='https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'">
+            <div>
+                <strong id="header-name" style="font-size: 13px;">User</strong><br>
+                <span style="font-size: 10px; color: #666;">Zionex Personal Banking</span>
+            </div>
         </div>
         <button class="secondary" onclick="logout()">Log out</button>
     </div>
@@ -53,50 +53,110 @@
             <p id="auth-msg" class="error-msg"></p>
         </div>
 
-        <!-- INVESTMENTS TAB -->
-        <div id="view-investments" style="display:none;">
-            <div class="card">
-                <h2>7-Day Growth Fund</h2>
-                <p style="font-size:12px; color:#666;">Lock funds for 7 days to earn guaranteed **5% interest** maturity payout.</p>
+        <!-- DASHBOARD SCREEN -->
+        <div id="dashboard-screen" class="view-section">
 
-                <input type="number" id="invest-amount" placeholder="Investment Amount (R)">
-                <button onclick="makeInvestment()">Start 7-Day Plan</button>
-                <p id="invest-msg" class="error-msg"></p>
+            <!-- OVERVIEW TAB -->
+            <div id="view-overview">
+                <h3 style="margin-top:0;">Hello, <span id="welcome-name">User</span></h3>
+
+                <!-- DIGITAL BANK CARD -->
+                <div class="digital-card">
+                    <div class="card-top">
+                        <div class="card-chip"></div>
+                        <div class="bank-brand">ZIONEX FINANCIAL</div>
+                    </div>
+
+                    <div class="card-number">4092 5810 9324 1111</div>
+
+                    <div class="card-info-row">
+                        <div class="card-holder-container">
+                            <div id="card-holder-name" class="card-holder">ZAZA SMITH</div>
+                            <div class="card-label">CARDHOLDER NAME</div>
+                        </div>
+
+                        <div class="card-exp-container">
+                            <div class="card-exp">10/29</div>
+                            <div class="card-label">EXPIRES END</div>
+                        </div>
+
+                        <div class="card-visa">VISA</div>
+                    </div>
+                </div>
+
+                <!-- CURRENT ACCOUNT ACCORDION -->
+                <div class="account-box" onclick="toggleAccount('current-actions')">
+                    <span style="font-size:11px; color:#666;">CURRENT ACCOUNT</span>
+                    <h2 id="current-balance" style="margin:2px 0; color:var(--dark-green);">R 0.00</h2>
+                    <span style="font-size:11px; color:var(--primary-green);">Tap to Deposit / Withdraw ▼</span>
+
+                    <div id="current-actions" class="account-actions" onclick="event.stopPropagation()">
+                        <input type="number" id="current-amount" placeholder="Amount (R)">
+                        <button onclick="performCurrentAction('income')" style="background-color:#28a745;">Deposit</button>
+                        <button onclick="performCurrentAction('expense')" style="background-color:#dc3545;">Withdraw</button>
+                        <p id="current-msg" class="error-msg"></p>
+                    </div>
+                </div>
+
+                <!-- SAVINGS ACCOUNT ACCORDION -->
+                <div class="account-box" onclick="toggleAccount('savings-actions')">
+                    <span style="font-size:11px; color:#666;">SAVINGS ACCOUNT (8.9% Bi-Monthly Interest)</span>
+                    <h2 id="savings-balance" style="margin:2px 0; color:var(--dark-green);">R 0.00</h2>
+                    <span style="font-size:11px; color:var(--primary-green);">Tap to Fund Savings / Withdraw ▼</span>
+
+                    <div id="savings-actions" class="account-actions" onclick="event.stopPropagation()">
+                        <input type="number" id="savings-amount" placeholder="Amount (R)">
+                        <button onclick="performSavingsAction('income')" style="background-color:#28a745;">Transfer from Current</button>
+                        <button onclick="performSavingsAction('expense')" style="background-color:#dc3545;">Withdraw to Current</button>
+                        <p id="savings-msg" class="error-msg"></p>
+                    </div>
+                </div>
             </div>
 
-            <div class="card" style="text-align: left;">
-                <h4 style="margin-top:0;">Active Growth Portfolios</h4>
-                <div id="investment-list"></div>
-            </div>
-        </div>
+            <!-- INVESTMENTS TAB -->
+            <div id="view-investments" style="display:none;">
+                <div class="card">
+                    <h2>7-Day Growth Fund</h2>
+                    <p style="font-size:12px; color:#666;">Lock funds for 7 days to earn guaranteed **5% interest** maturity payout.</p>
 
-        <!-- HISTORY TAB -->
-        <div id="view-history" style="display:none;">
-            <div class="card">
-                <h2>Activity Ledger</h2>
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Amount</th>
-                    </tr>
-                    </thead>
-                    <tbody id="history-table-body"></tbody>
-                </table>
+                    <input type="number" id="invest-amount" placeholder="Investment Amount (R)">
+                    <button onclick="makeInvestment()">Start 7-Day Plan</button>
+                    <p id="invest-msg" class="error-msg"></p>
+                </div>
+
+                <div class="card" style="text-align: left;">
+                    <h4 style="margin-top:0;">Active Growth Portfolios</h4>
+                    <div id="investment-list"></div>
+                </div>
             </div>
+
+            <!-- HISTORY TAB -->
+            <div id="view-history" style="display:none;">
+                <div class="card">
+                    <h2>Activity Ledger</h2>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                        </tr>
+                        </thead>
+                        <tbody id="history-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
 
     </div>
 
-</div>
-
-<!-- APP NAVIGATION BAR -->
-<div id="app-nav" class="nav-bar" style="display:none;">
-    <button onclick="switchView('overview')">🏠 Home</button>
-    <button onclick="switchView('investments')">📈 Invest</button>
-    <button onclick="switchView('history')">📜 History</button>
-</div>
+    <!-- APP NAVIGATION BAR -->
+    <div id="app-nav" class="nav-bar" style="display:none;">
+        <button onclick="switchView('overview')">🏠 Home</button>
+        <button onclick="switchView('investments')">📈 Invest</button>
+        <button onclick="switchView('history')">📜 History</button>
+    </div>
 
 </div>
 
