@@ -185,3 +185,31 @@ body {
     color: #ffffff;
     text-shadow: 0 2px 4px rgba(0,0,0,0.6);
 }
+
+.account-box {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    text-align: left;
+    cursor: pointer;
+    border-left: 5px solid var(--primary-green);
+}
+
+.account-actions {
+    display: none;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+}
+
+input, select {
+    padding: 10px;
+    margin: 6px 0;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}

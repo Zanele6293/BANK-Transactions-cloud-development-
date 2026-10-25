@@ -1,4 +1,4 @@
-package transections.co.za;
+package Transections.co.za;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

@@ -1,4 +1,4 @@
-package transections.co.za;
+package Transections.co.za;
 
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;

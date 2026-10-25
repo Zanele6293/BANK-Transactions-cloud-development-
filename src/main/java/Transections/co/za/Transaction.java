@@ -1,4 +1,4 @@
-package transections.co.za;
+package Transections.co.za;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
