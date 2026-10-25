@@ -4,7 +4,7 @@ function toggleAuthMode() {
     let loginBox = document.getElementById('login-box');
     let regBox = document.getElementById('register-box');
     let msg = document.getElementById('auth-msg');
-    msg.innerText = "";
+    if(msg) msg.innerText = "";
 
     if (loginBox.style.display === "none") {
         loginBox.style.display = "block";
@@ -15,20 +15,22 @@ function toggleAuthMode() {
     }
 }
 
+function toggleAccount(id) {
+    let box = document.getElementById(id);
+    if(box) {
+        box.style.display = box.style.display === "block" ? "none" : "block";
+    }
+}
+
 function formatName(text) {
     if (!text) return "";
     text = text.trim().toLowerCase();
     return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-function toggleAccount(id) {
-    let box = document.getElementById(id);
-    box.style.display = box.style.display === "block" ? "none" : "block";
-}
-
 async function registerUser() {
-    let username = document.getElementById('reg-username').value.trim();
-    let surname = document.getElementById('reg-surname').value.trim();
+    let username = formatName(document.getElementById('reg-username').value);
+    let surname = formatName(document.getElementById('reg-surname').value);
     let password = document.getElementById('reg-password').value;
     let deposit = document.getElementById('reg-deposit').value;
     let fileInput = document.getElementById('reg-image');
@@ -62,22 +64,26 @@ async function sendRegistration(username, surname, password, deposit, image) {
     formData.append("initialDeposit", deposit);
     formData.append("profileImage", image);
 
-    let response = await fetch('/api/transactions/register', { method: 'POST', body: formData });
-    let result = await response.text();
+    try {
+        let response = await fetch('/api/transactions/register', { method: 'POST', body: formData });
+        let result = await response.text();
 
-    let msgBox = document.getElementById('auth-msg');
-    if (result.startsWith("ERROR:")) {
-        msgBox.className = "error-msg";
-        msgBox.innerText = result.replace("ERROR:", "");
-    } else {
-        msgBox.className = "success-msg";
-        msgBox.innerText = "Account created! Please sign in.";
-        toggleAuthMode();
+        let msgBox = document.getElementById('auth-msg');
+        if (result.startsWith("ERROR:")) {
+            msgBox.className = "error-msg";
+            msgBox.innerText = result.replace("ERROR:", "");
+        } else {
+            msgBox.className = "success-msg";
+            msgBox.innerText = "Account created! Please sign in.";
+            toggleAuthMode();
+        }
+    } catch (err) {
+        console.error(err);
     }
 }
 
 async function loginUser() {
-    let username = document.getElementById('login-username').value.trim();
+    let username = formatName(document.getElementById('login-username').value);
     let password = document.getElementById('login-password').value;
     let msgBox = document.getElementById('auth-msg');
 
@@ -90,21 +96,25 @@ async function loginUser() {
     formData.append("username", username);
     formData.append("password", password);
 
-    let response = await fetch('/api/transactions/login', { method: 'POST', body: formData });
-    let result = await response.text();
+    try {
+        let response = await fetch('/api/transactions/login', { method: 'POST', body: formData });
+        let result = await response.text();
 
-    if (result.startsWith("ERROR:")) {
-        msgBox.className = "error-msg";
-        msgBox.innerText = result.replace("ERROR:", "");
-    } else {
-        currentUser = username;
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('dashboard-screen').style.display = 'block';
-        document.getElementById('app-header').style.display = 'flex';
-        document.getElementById('app-nav').style.display = 'flex';
+        if (result.startsWith("ERROR:")) {
+            msgBox.className = "error-msg";
+            msgBox.innerText = result.replace("ERROR:", "");
+        } else {
+            currentUser = username;
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('dashboard-screen').style.display = 'block';
+            document.getElementById('app-header').style.display = 'flex';
+            document.getElementById('app-nav').style.display = 'flex';
 
-        loadUserProfile();
-        switchView('overview');
+            loadUserProfile();
+            switchView('overview');
+        }
+    } catch (err) {
+        console.error(err);
     }
 }
 
@@ -116,54 +126,79 @@ function logout() {
     document.getElementById('app-nav').style.display = 'none';
     document.getElementById('login-username').value = "";
     document.getElementById('login-password').value = "";
-    document.getElementById('auth-msg').innerText = "";
+    let msg = document.getElementById('auth-msg');
+    if(msg) msg.innerText = "";
 }
 
 function switchView(viewName) {
-    document.getElementById('view-overview').style.display = 'none';
-    document.getElementById('view-investments').style.display = 'none';
-    document.getElementById('view-history').style.display = 'none';
+    let ov = document.getElementById('view-overview');
+    let inv = document.getElementById('view-investments');
+    let hist = document.getElementById('view-history');
+
+    if(ov) ov.style.display = 'none';
+    if(inv) inv.style.display = 'none';
+    if(hist) hist.style.display = 'none';
 
     if (viewName === 'overview') {
-        document.getElementById('view-overview').style.display = 'block';
+        if(ov) ov.style.display = 'block';
         fetchBalances();
     } else if (viewName === 'investments') {
-        document.getElementById('view-investments').style.display = 'block';
+        if(inv) inv.style.display = 'block';
         fetchInvestments();
     } else if (viewName === 'history') {
-        document.getElementById('view-history').style.display = 'block';
+        if(hist) hist.style.display = 'block';
         fetchHistory();
     }
 }
 
 async function loadUserProfile() {
-    let response = await fetch(`/api/transactions/profile?username=${currentUser}`);
-    let profile = await response.json();
+    try {
+        let response = await fetch(`/api/transactions/profile?username=${currentUser}`);
+        if (!response.ok) return;
+        let profile = await response.json();
+        if(!profile) return;
 
-    document.getElementById('header-name').innerText = profile.username + " " + profile.surname;
-    document.getElementById('welcome-name').innerText = profile.username + " " + profile.surname;
-    document.getElementById('card-holder-name').innerText = (profile.username + " " + profile.surname).toUpperCase();
+        let fullName = (profile.username || currentUser) + " " + (profile.surname || "");
+        let headerName = document.getElementById('header-name');
+        let welcomeName = document.getElementById('welcome-name');
+        let cardHolder = document.getElementById('card-holder-name');
 
-    if (profile.profileImage) {
-        document.getElementById('header-avatar').src = profile.profileImage;
+        if(headerName) headerName.innerText = fullName;
+        if(welcomeName) welcomeName.innerText = fullName;
+        if(cardHolder) cardHolder.innerText = fullName.toUpperCase();
+
+        if (profile.profileImage) {
+            let avatar = document.getElementById('header-avatar');
+            if(avatar) avatar.src = profile.profileImage;
+        }
+    } catch (err) {
+        console.error("Error loading profile:", err);
     }
     fetchBalances();
 }
 
 async function fetchBalances() {
-    let resCurrent = await fetch(`/api/transactions/balance/current?username=${currentUser}`);
-    let currentBal = await resCurrent.text();
-    document.getElementById('current-balance').innerText = "R " + parseFloat(currentBal).toFixed(2);
+    try {
+        let resCurrent = await fetch(`/api/transactions/balance/current?username=${currentUser}`);
+        let currentBal = await resCurrent.text();
+        let curEl = document.getElementById('current-balance');
+        if(curEl) curEl.innerText = "R " + parseFloat(currentBal || 0).toFixed(2);
 
-    let resSavings = await fetch(`/api/transactions/balance/savings?username=${currentUser}`);
-    let savingsBal = await resSavings.text();
-    document.getElementById('savings-balance').innerText = "R " + parseFloat(savingsBal).toFixed(2);
+        let resSavings = await fetch(`/api/transactions/balance/savings?username=${currentUser}`);
+        let savingsBal = await resSavings.text();
+        let savEl = document.getElementById('savings-balance');
+        if(savEl) savEl.innerText = "R " + parseFloat(savingsBal || 0).toFixed(2);
+    } catch (err) {
+        console.error("Error fetching balances:", err);
+    }
 }
 
 async function performCurrentAction(type) {
-    let amount = document.getElementById('current-amount').value;
+    let amountEl = document.getElementById('current-amount');
     let msgBox = document.getElementById('current-msg');
-    if (!amount) { msgBox.innerText = "Enter amount"; return; }
+    let amount = amountEl ? amountEl.value : "";
+
+    if (!amount) { if(msgBox) msgBox.innerText = "Enter amount"; return; }
 
     let formData = new URLSearchParams();
     formData.append("username", currentUser);
@@ -174,19 +209,20 @@ async function performCurrentAction(type) {
     let result = await response.text();
 
     if (result.startsWith("ERROR:")) {
-        msgBox.className = "error-msg";
-        msgBox.innerText = result.replace("ERROR:", "");
+        if(msgBox) { msgBox.className = "error-msg"; msgBox.innerText = result.replace("ERROR:", ""); }
     } else {
-        msgBox.innerText = "";
-        document.getElementById('current-amount').value = "";
+        if(msgBox) msgBox.innerText = "";
+        if(amountEl) amountEl.value = "";
         fetchBalances();
     }
 }
 
 async function performSavingsAction(type) {
-    let amount = document.getElementById('savings-amount').value;
+    let amountEl = document.getElementById('savings-amount');
     let msgBox = document.getElementById('savings-msg');
-    if (!amount) { msgBox.innerText = "Enter amount"; return; }
+    let amount = amountEl ? amountEl.value : "";
+
+    if (!amount) { if(msgBox) msgBox.innerText = "Enter amount"; return; }
 
     let formData = new URLSearchParams();
     formData.append("username", currentUser);
@@ -197,19 +233,19 @@ async function performSavingsAction(type) {
     let result = await response.text();
 
     if (result.startsWith("ERROR:")) {
-        msgBox.className = "error-msg";
-        msgBox.innerText = result.replace("ERROR:", "");
+        if(msgBox) { msgBox.className = "error-msg"; msgBox.innerText = result.replace("ERROR:", ""); }
     } else {
-        msgBox.innerText = "";
-        document.getElementById('savings-amount').value = "";
+        if(msgBox) msgBox.innerText = "";
+        if(amountEl) amountEl.value = "";
         fetchBalances();
     }
 }
 
 async function makeInvestment() {
-    let amount = document.getElementById('invest-amount').value;
+    let amountEl = document.getElementById('invest-amount');
     let msgBox = document.getElementById('invest-msg');
-    if (!amount) { msgBox.innerText = "Enter amount"; return; }
+    let amount = amountEl ? amountEl.value : "";
+    if (!amount) { if(msgBox) msgBox.innerText = "Enter amount"; return; }
 
     let formData = new URLSearchParams();
     formData.append("username", currentUser);
@@ -219,53 +255,63 @@ async function makeInvestment() {
     let result = await response.text();
 
     if (result.startsWith("ERROR:")) {
-        msgBox.className = "error-msg";
-        msgBox.innerText = result.replace("ERROR:", "");
+        if(msgBox) { msgBox.className = "error-msg"; msgBox.innerText = result.replace("ERROR:", ""); }
     } else {
-        msgBox.className = "success-msg";
-        msgBox.innerText = "Investment locked successfully!";
-        document.getElementById('invest-amount').value = "";
+        if(msgBox) { msgBox.className = "success-msg"; msgBox.innerText = "Investment locked successfully!"; }
+        if(amountEl) amountEl.value = "";
         fetchBalances();
         fetchInvestments();
     }
 }
 
 async function fetchInvestments() {
-    let response = await fetch(`/api/transactions/investments?username=${currentUser}`);
-    let investments = await response.json();
+    try {
+        let response = await fetch(`/api/transactions/investments?username=${currentUser}`);
+        let investments = await response.json();
 
-    let container = document.getElementById('investment-list');
-    container.innerHTML = "";
+        let container = document.getElementById('investment-list');
+        if(!container) return;
+        container.innerHTML = "";
 
-    if (investments.length === 0) {
-        container.innerHTML = "<p style='font-size:12px; color:#777;'>No active portfolios found.</p>";
-        return;
+        if (!investments || investments.length === 0) {
+            container.innerHTML = "<p style='font-size:12px; color:#777;'>No active portfolios found.</p>";
+            return;
+        }
+
+        investments.forEach(inv => {
+            let status = inv.activeInvestment ? "🟢 Active (Growth in progress)" : "✅ Matured & Paid Out";
+            let item = `<div style="background:#f1f3f5; padding:8px; border-radius:6px; margin-bottom:6px; font-size:12px;">
+                <strong>R ${parseFloat(inv.amount || 0).toFixed(2)}</strong><br>
+                Maturity: ${inv.maturityDate || 'N/A'}<br>
+                <span>${status}</span>
+            </div>`;
+            container.innerHTML += item;
+        });
+    } catch (err) {
+        console.error("Error fetching investments:", err);
     }
-
-    investments.forEach(inv => {
-        let status = inv.activeInvestment ? "🟢 Growing (+5% locked)" : "✅ Matured & Paid Out";
-        let item = `<div style="background:#f1f3f5; padding:8px; border-radius:6px; margin-bottom:6px; font-size:12px;">
-            <strong>R ${inv.amount.toFixed(2)}</strong><br>
-            Maturity: ${inv.maturityDate}<br>
-            <span>${status}</span>
-        </div>`;
-        container.innerHTML += item;
-    });
 }
 
 async function fetchHistory() {
-    let response = await fetch(`/api/transactions/history?username=${currentUser}`);
-    let history = await response.json();
+    try {
+        let response = await fetch(`/api/transactions/history?username=${currentUser}`);
+        let history = await response.json();
 
-    let tbody = document.getElementById('history-table-body');
-    tbody.innerHTML = "";
+        let tbody = document.getElementById('history-table-body');
+        if(!tbody) return;
+        tbody.innerHTML = "";
 
-    history.forEach(tx => {
-        let row = `<tr>
-            <td>${tx.date}</td>
-            <td><b>${tx.type}</b></td>
-            <td>R ${tx.amount.toFixed(2)}</td>
-        </tr>`;
-        tbody.innerHTML += row;
-    });
+        if (!history) return;
+
+        history.forEach(tx => {
+            let row = `<tr>
+                <td>${tx.date || ''}</td>
+                <td><b>${tx.type || ''}</b></td>
+                <td>R ${parseFloat(tx.amount || 0).toFixed(2)}</td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+    } catch (err) {
+        console.error("Error fetching history:", err);
+    }
 }
