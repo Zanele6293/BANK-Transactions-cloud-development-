@@ -52,51 +52,51 @@
 
             <p id="auth-msg" class="error-msg"></p>
         </div>
-                
-            <!-- INVESTMENTS TAB -->
-            <div id="view-investments" style="display:none;">
-                <div class="card">
-                    <h2>7-Day Growth Fund</h2>
-                    <p style="font-size:12px; color:#666;">Lock funds for 7 days to earn guaranteed **5% interest** maturity payout.</p>
 
-                    <input type="number" id="invest-amount" placeholder="Investment Amount (R)">
-                    <button onclick="makeInvestment()">Start 7-Day Plan</button>
-                    <p id="invest-msg" class="error-msg"></p>
-                </div>
+        <!-- INVESTMENTS TAB -->
+        <div id="view-investments" style="display:none;">
+            <div class="card">
+                <h2>7-Day Growth Fund</h2>
+                <p style="font-size:12px; color:#666;">Lock funds for 7 days to earn guaranteed **5% interest** maturity payout.</p>
 
-                <div class="card" style="text-align: left;">
-                    <h4 style="margin-top:0;">Active Growth Portfolios</h4>
-                    <div id="investment-list"></div>
-                </div>
+                <input type="number" id="invest-amount" placeholder="Investment Amount (R)">
+                <button onclick="makeInvestment()">Start 7-Day Plan</button>
+                <p id="invest-msg" class="error-msg"></p>
             </div>
 
-            <!-- HISTORY TAB -->
-            <div id="view-history" style="display:none;">
-                <div class="card">
-                    <h2>Activity Ledger</h2>
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Type</th>
-                            <th>Amount</th>
-                        </tr>
-                        </thead>
-                        <tbody id="history-table-body"></tbody>
-                    </table>
-                </div>
+            <div class="card" style="text-align: left;">
+                <h4 style="margin-top:0;">Active Growth Portfolios</h4>
+                <div id="investment-list"></div>
             </div>
+        </div>
 
+        <!-- HISTORY TAB -->
+        <div id="view-history" style="display:none;">
+            <div class="card">
+                <h2>Activity Ledger</h2>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                    </tr>
+                    </thead>
+                    <tbody id="history-table-body"></tbody>
+                </table>
+            </div>
         </div>
 
     </div>
 
-    <!-- APP NAVIGATION BAR -->
-    <div id="app-nav" class="nav-bar" style="display:none;">
-        <button onclick="switchView('overview')">🏠 Home</button>
-        <button onclick="switchView('investments')">📈 Invest</button>
-        <button onclick="switchView('history')">📜 History</button>
-    </div>
+</div>
+
+<!-- APP NAVIGATION BAR -->
+<div id="app-nav" class="nav-bar" style="display:none;">
+    <button onclick="switchView('overview')">🏠 Home</button>
+    <button onclick="switchView('investments')">📈 Invest</button>
+    <button onclick="switchView('history')">📜 History</button>
+</div>
 
 </div>
 

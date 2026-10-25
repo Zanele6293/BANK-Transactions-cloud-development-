@@ -1,4 +1,4 @@
-package Transections.co.za;
+package transection.co.za;
 
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
@@ -22,9 +22,9 @@ public class TransactionController {
     }
 
     private Transaction findUserAccount(String username) {
-        List<Transaction> all = repository.findAll();
+        List<Transaction> all = repository.findByUsernameIgnoreCase(username);
         for (Transaction tx : all) {
-            if (tx.getUsername() != null && tx.getUsername().equalsIgnoreCase(username) && "INITIAL_DEPOSIT".equals(tx.getType())) {
+            if ("INITIAL_DEPOSIT".equals(tx.getType())) {
                 return tx;
             }
         }
@@ -33,17 +33,15 @@ public class TransactionController {
 
     @PostMapping("/register")
     public Object register(@RequestParam String username, @RequestParam String surname, @RequestParam String password, @RequestParam double initialDeposit, @RequestParam(required = false) String profileImage) {
-        if (findUserAccount(username) != null) {
+        String cleanName = capitalize(username.trim());
+        if (findUserAccount(cleanName) != null) {
             return "ERROR:Account already exists! Please log in.";
         }
         if (initialDeposit < 150.0) {
             return "ERROR:Minimum opening deposit is R150.00";
         }
 
-        // Capitalize Name and Surname properly
-        String cleanName = capitalize(username.trim());
         String cleanSurname = capitalize(surname.trim());
-
         Transaction tx = new Transaction(cleanName, cleanSurname, password, "INITIAL_DEPOSIT", initialDeposit, LocalDate.now(), profileImage);
         return repository.save(tx);
     }
@@ -69,40 +67,29 @@ public class TransactionController {
     @GetMapping("/balance/current")
     public double getCurrentBalance(@RequestParam String username) {
         String cleanName = capitalize(username.trim());
-        List<Transaction> transactions = repository.findAll();
-        double balance = 0.0;
-        for (Transaction tx : transactions) {
-            if (tx.getUsername() != null && tx.getUsername().equalsIgnoreCase(cleanName)) {
-                if ("INITIAL_DEPOSIT".equals(tx.getType()) || "CURRENT_INCOME".equals(tx.getType()) || "MATURED_PAYOUT".equals(tx.getType())) {
-                    balance += tx.getAmount();
-                } else if ("CURRENT_EXPENSE".equals(tx.getType()) || "INVESTMENT".equals(tx.getType()) || "SAVINGS_TRANSFER_OUT".equals(tx.getType())) {
-                    balance -= tx.getAmount();
-                }
-            }
-        }
-        return balance;
+        double credits = repository.getCreditsForCurrent(cleanName);
+        double debits = repository.getDebitsForCurrent(cleanName);
+        return credits - debits;
     }
 
     @GetMapping("/balance/savings")
     public double getSavingsBalance(@RequestParam String username) {
         String cleanName = capitalize(username.trim());
-        List<Transaction> transactions = repository.findAll();
+        // Only fetches savings rows, ignoring current account clutter!
+        List<Transaction> savingsTransactions = repository.getSavingsTransactionsOnly(cleanName);
         LocalDate today = LocalDate.now();
         double balance = 0.0;
 
-        for (Transaction tx : transactions) {
-            if (tx.getUsername() != null && tx.getUsername().equalsIgnoreCase(cleanName)) {
-                if ("SAVINGS_INCOME".equals(tx.getType()) || "SAVINGS_TRANSFER_IN".equals(tx.getType())) {
-                    double actualAmount = tx.getAmount();
-
-                    // CHECK IF 2 MONTHS (60 DAYS) HAVE PASSED FOR INTEREST PAYOUT
-                    if (tx.getDate() != null && today.isAfter(tx.getDate().plusDays(60))) {
-                        actualAmount *= 1.089; // Apply the 8.9% interest after 2 months!
-                    }
-                    balance += actualAmount;
-                } else if ("SAVINGS_EXPENSE".equals(tx.getType())) {
-                    balance -= tx.getAmount();
+        for (Transaction tx : savingsTransactions) {
+            if ("SAVINGS_INCOME".equals(tx.getType()) || "SAVINGS_TRANSFER_IN".equals(tx.getType())) {
+                double actualAmount = tx.getAmount();
+                // 60-day business logic condition safely handled in Java
+                if (tx.getDate() != null && today.isAfter(tx.getDate().plusDays(60))) {
+                    actualAmount *= 1.089;
                 }
+                balance += actualAmount;
+            } else if ("SAVINGS_EXPENSE".equals(tx.getType())) {
+                balance -= tx.getAmount();
             }
         }
         return balance;
@@ -111,7 +98,7 @@ public class TransactionController {
     @PostMapping("/current/income")
     public Object currentDeposit(@RequestParam String username, @RequestParam double amount) {
         if (amount <= 0) return "ERROR:Amount must be greater than zero.";
-        Transaction tx = new Transaction(capitalize(username.trim()), null, "CURRENT_INCOME", amount, LocalDate.now(), null, null);
+        Transaction tx = new Transaction(capitalize(username.trim()), "CURRENT_INCOME", amount, LocalDate.now());
         return repository.save(tx);
     }
 
@@ -122,7 +109,7 @@ public class TransactionController {
         if (currentBalance < amount) {
             return "ERROR:Insufficient Current Account Balance!";
         }
-        Transaction tx = new Transaction(capitalize(username.trim()), null, "CURRENT_EXPENSE", amount, LocalDate.now(), null, null);
+        Transaction tx = new Transaction(capitalize(username.trim()), "CURRENT_EXPENSE", amount, LocalDate.now());
         return repository.save(tx);
     }
 
@@ -135,11 +122,8 @@ public class TransactionController {
         }
         String cleanName = capitalize(username.trim());
 
-        // Deduct raw amount from current account
-        repository.save(new Transaction(cleanName, null, "SAVINGS_TRANSFER_OUT", amount, LocalDate.now(), null, null));
-
-        // Save raw amount into savings (Interest will trigger mathematically after 60 days)
-        Transaction savingsTx = new Transaction(cleanName, null, "SAVINGS_INCOME", amount, LocalDate.now(), null, null);
+        repository.save(new Transaction(cleanName, "SAVINGS_TRANSFER_OUT", amount, LocalDate.now()));
+        Transaction savingsTx = new Transaction(cleanName, "SAVINGS_INCOME", amount, LocalDate.now());
         return repository.save(savingsTx);
     }
 
@@ -150,7 +134,7 @@ public class TransactionController {
         if (savingsBalance < amount) {
             return "ERROR:Insufficient Savings Balance!";
         }
-        Transaction tx = new Transaction(capitalize(username.trim()), null, "SAVINGS_EXPENSE", amount, LocalDate.now(), null, null);
+        Transaction tx = new Transaction(capitalize(username.trim()), "SAVINGS_EXPENSE", amount, LocalDate.now());
         return repository.save(tx);
     }
 
@@ -162,40 +146,38 @@ public class TransactionController {
             return "ERROR:Insufficient funds for this 7-day investment.";
         }
 
-        LocalDate maturity = LocalDate.now().plusDays(7);
-        Transaction tx = new Transaction(capitalize(username.trim()), "INVESTMENT", amount, LocalDate.now(), true, maturity);
+        Transaction tx = new Transaction(capitalize(username.trim()), "INVESTMENT", amount, LocalDate.now());
+        tx.setActiveInvestment(true);
+        tx.setMaturityDate(LocalDate.now().plusDays(7));
         return repository.save(tx);
     }
 
     @GetMapping("/investments")
     public List<Transaction> getInvestments(@RequestParam String username) {
         String cleanName = capitalize(username.trim());
-        List<Transaction> all = repository.findAll();
+        List<Transaction> all = repository.findByUsernameIgnoreCase(cleanName);
         LocalDate today = LocalDate.now();
 
         for (Transaction tx : all) {
-            if (tx.getUsername() != null && tx.getUsername().equalsIgnoreCase(cleanName) && "INVESTMENT".equals(tx.getType()) && tx.isActiveInvestment()) {
+            if ("INVESTMENT".equals(tx.getType()) && tx.isActiveInvestment()) {
                 if (today.isAfter(tx.getMaturityDate()) || today.isEqual(tx.getMaturityDate())) {
                     tx.setActiveInvestment(false);
                     repository.save(tx);
 
                     double payout = tx.getAmount() * 1.05;
-                    Transaction reward = new Transaction(cleanName, null, "MATURED_PAYOUT", payout, LocalDate.now(), null, null);
+                    Transaction reward = new Transaction(cleanName, "MATURED_PAYOUT", payout, LocalDate.now());
                     repository.save(reward);
                 }
             }
         }
 
-        return repository.findAll().stream()
-                .filter(tx -> tx.getUsername() != null && tx.getUsername().equalsIgnoreCase(cleanName) && "INVESTMENT".equals(tx.getType()))
+        return repository.findByUsernameIgnoreCase(cleanName).stream()
+                .filter(tx -> "INVESTMENT".equals(tx.getType()))
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/history")
     public List<Transaction> getHistory(@RequestParam String username) {
-        String cleanName = capitalize(username.trim());
-        return repository.findAll().stream()
-                .filter(tx -> tx.getUsername() != null && tx.getUsername().equalsIgnoreCase(cleanName))
-                .collect(Collectors.toList());
+        return repository.findByUsernameIgnoreCase(capitalize(username.trim()));
     }
 }
