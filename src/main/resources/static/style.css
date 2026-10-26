@@ -46,6 +46,20 @@ body {
     border: 1px solid var(--primary-green);
 }
 
+
+#header-avatar {
+    width: 45px !important;
+    height: 45px !important;
+    min-width: 45px !important;
+    min-height: 45px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;        /* Prevents stretching by cropping cleanly */
+    object-position: center !important;   /* Centers the face/focus of the photo */
+    display: block !important;
+    border: 2px solid var(--primary-green) !important;
+    background-color: #e2e8f0;
+}
+
 .content-body {
     padding: 20px;
     overflow-y: auto;

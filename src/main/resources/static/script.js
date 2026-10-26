@@ -29,19 +29,24 @@ function formatName(text) {
 }
 
 async function registerUser() {
-    let username = formatName(document.getElementById('reg-username').value);
-    let surname = formatName(document.getElementById('reg-surname').value);
-    let password = document.getElementById('reg-password').value;
-    let deposit = document.getElementById('reg-deposit').value;
+    let usernameField = document.getElementById('reg-username');
+    let surnameField = document.getElementById('reg-surname');
+    let passwordField = document.getElementById('reg-password');
+    let depositField = document.getElementById('reg-deposit');
     let fileInput = document.getElementById('reg-image');
     let msgBox = document.getElementById('auth-msg');
 
+    let username = formatName(usernameField.value);
+    let surname = formatName(surnameField.value);
+    let password = passwordField.value;
+    let deposit = depositField.value;
+
     if (!username || !surname || !password || !deposit) {
+        msgBox.className = "error-msg";
         msgBox.innerText = "Please fill in all account fields.";
         return;
     }
 
-    // Build FormData to send files and text together cleanly via HTTP multipart
     let formData = new FormData();
     formData.append("username", username);
     formData.append("surname", surname);
@@ -52,51 +57,36 @@ async function registerUser() {
         formData.append("profileImage", fileInput.files[0]);
     }
 
+    // Disable button to prevent double-click duplication glitches
+    let regButton = event.target;
+    regButton.disabled = true;
+    regButton.innerText = "Processing...";
+
     try {
         let response = await fetch('/api/transactions/register', {
             method: 'POST',
             body: formData
-            // Note: Do NOT manually set 'Content-Type': 'multipart/form-data' here.
-            // The browser must set it automatically with its boundary.
         });
         let result = await response.text();
 
         if (result.startsWith("ERROR:")) {
             msgBox.className = "error-msg";
             msgBox.innerText = result.replace("ERROR:", "");
+            regButton.disabled = false;
+            regButton.innerText = "Register Account";
         } else {
             msgBox.className = "success-msg";
             msgBox.innerText = "Account created successfully! Please sign in.";
-            toggleAuthMode();
+            setTimeout(() => {
+                toggleAuthMode();
+                regButton.disabled = false;
+                regButton.innerText = "Register Account";
+            }, 1000);
         }
     } catch (err) {
         console.error("Registration error:", err);
-    }
-}
-
-async function sendRegistration(username, surname, password, deposit, image) {
-    let formData = new URLSearchParams();
-    formData.append("username", username);
-    formData.append("surname", surname);
-    formData.append("password", password);
-    formData.append("initialDeposit", deposit);
-    formData.append("profileImage", image);
-
-    try {
-        let response = await fetch('/api/transactions/register', { method: 'POST', body: formData });
-        let result = await response.text();
-
-        let msgBox = document.getElementById('auth-msg');
-        if (result.startsWith("ERROR:")) {
-            msgBox.className = "error-msg";
-            msgBox.innerText = result.replace("ERROR:", "");
-        } else {
-            msgBox.className = "success-msg";
-            msgBox.innerText = "Account created! Please sign in.";
-            toggleAuthMode();
-        }
-    } catch (err) {
-        console.error(err);
+        regButton.disabled = false;
+        regButton.innerText = "Register Account";
     }
 }
 
@@ -185,11 +175,19 @@ async function loadUserProfile() {
         if(welcomeName) welcomeName.innerText = fullName;
         if(cardHolder) cardHolder.innerText = fullName.toUpperCase();
 
-        if (profile.profileImage) {
-            let headerAvatar = document.getElementById('header-avatar');
-            if(headerAvatar) {
+        // Render the uploaded profile picture URL or a clean fallback silhouette
+        let headerAvatar = document.getElementById('header-avatar');
+        if (headerAvatar) {
+            if (profile.profileImage && profile.profileImage.trim() !== "" && !profile.profileImage.includes("default")) {
                 headerAvatar.src = profile.profileImage;
-                console.log("Profile image loaded successfully:", profile.profileImage);
+
+                // If the live S3 image link somehow fails to load, gracefully swap to the silhouette
+                headerAvatar.onerror = function() {
+                    headerAvatar.src = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
+                };
+            } else {
+                // Clean default silhouette when no picture was uploaded
+                headerAvatar.src = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
             }
         }
     } catch (err) {

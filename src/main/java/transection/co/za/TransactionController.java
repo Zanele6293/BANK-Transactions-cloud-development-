@@ -11,10 +11,11 @@ import java.util.stream.Collectors;
 public class TransactionController {
 
     private final TransactionRepository repository;
+    private final S3Service s3Service; // S3 Integration
 
-    public TransactionController(TransactionRepository repository) {
+    public TransactionController(TransactionRepository repository, S3Service s3Service) {
         this.repository = repository;
-
+        this.s3Service = s3Service;
     }
 
     private String capitalize(String text) {
