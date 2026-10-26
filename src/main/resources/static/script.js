@@ -41,18 +41,36 @@ async function registerUser() {
         return;
     }
 
-    let defaultAvatar = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
-    let base64Image = defaultAvatar;
+    // Build FormData to send files and text together cleanly via HTTP multipart
+    let formData = new FormData();
+    formData.append("username", username);
+    formData.append("surname", surname);
+    formData.append("password", password);
+    formData.append("initialDeposit", deposit);
 
     if (fileInput.files && fileInput.files[0]) {
-        let reader = new FileReader();
-        reader.readAsDataURL(fileInput.files[0]);
-        reader.onload = async function () {
-            base64Image = reader.result;
-            await sendRegistration(username, surname, password, deposit, base64Image);
-        };
-    } else {
-        await sendRegistration(username, surname, password, deposit, base64Image);
+        formData.append("profileImage", fileInput.files[0]);
+    }
+
+    try {
+        let response = await fetch('/api/transactions/register', {
+            method: 'POST',
+            body: formData
+            // Note: Do NOT manually set 'Content-Type': 'multipart/form-data' here.
+            // The browser must set it automatically with its boundary.
+        });
+        let result = await response.text();
+
+        if (result.startsWith("ERROR:")) {
+            msgBox.className = "error-msg";
+            msgBox.innerText = result.replace("ERROR:", "");
+        } else {
+            msgBox.className = "success-msg";
+            msgBox.innerText = "Account created successfully! Please sign in.";
+            toggleAuthMode();
+        }
+    } catch (err) {
+        console.error("Registration error:", err);
     }
 }
 
@@ -168,8 +186,11 @@ async function loadUserProfile() {
         if(cardHolder) cardHolder.innerText = fullName.toUpperCase();
 
         if (profile.profileImage) {
-            let avatar = document.getElementById('header-avatar');
-            if(avatar) avatar.src = profile.profileImage;
+            let headerAvatar = document.getElementById('header-avatar');
+            if(headerAvatar) {
+                headerAvatar.src = profile.profileImage;
+                console.log("Profile image loaded successfully:", profile.profileImage);
+            }
         }
     } catch (err) {
         console.error("Error loading profile:", err);

@@ -1,6 +1,7 @@
 package transection.co.za;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,6 +14,7 @@ public class TransactionController {
 
     public TransactionController(TransactionRepository repository) {
         this.repository = repository;
+
     }
 
     private String capitalize(String text) {
@@ -31,20 +33,6 @@ public class TransactionController {
         return null;
     }
 
-    @PostMapping("/register")
-    public Object register(@RequestParam String username, @RequestParam String surname, @RequestParam String password, @RequestParam double initialDeposit, @RequestParam(required = false) String profileImage) {
-        String cleanName = capitalize(username.trim());
-        if (findUserAccount(cleanName) != null) {
-            return "ERROR:Account already exists! Please log in.";
-        }
-        if (initialDeposit < 150.0) {
-            return "ERROR:Minimum opening deposit is R150.00";
-        }
-
-        String cleanSurname = capitalize(surname.trim());
-        Transaction tx = new Transaction(cleanName, cleanSurname, password, "INITIAL_DEPOSIT", initialDeposit, LocalDate.now(), profileImage);
-        return repository.save(tx);
-    }
 
     @PostMapping("/login")
     public Object login(@RequestParam String username, @RequestParam String password) {
@@ -75,15 +63,13 @@ public class TransactionController {
     @GetMapping("/balance/savings")
     public double getSavingsBalance(@RequestParam String username) {
         String cleanName = capitalize(username.trim());
-        // Only fetches savings rows, ignoring current account clutter!
-        List<Transaction> savingsTransactions = repository.getSavingsTransactionsOnly(cleanName);
+        List<Transaction> transactions = repository.findByUsernameIgnoreCase(cleanName);
         LocalDate today = LocalDate.now();
         double balance = 0.0;
 
-        for (Transaction tx : savingsTransactions) {
+        for (Transaction tx : transactions) {
             if ("SAVINGS_INCOME".equals(tx.getType()) || "SAVINGS_TRANSFER_IN".equals(tx.getType())) {
                 double actualAmount = tx.getAmount();
-                // 60-day business logic condition safely handled in Java
                 if (tx.getDate() != null && today.isAfter(tx.getDate().plusDays(60))) {
                     actualAmount *= 1.089;
                 }

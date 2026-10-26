@@ -21,7 +21,7 @@ public class Transaction {
     private boolean activeInvestment = false;
     private LocalDate maturityDate;
 
-    @Column(length = 500000)
+    @Column(length = 1024)
     private String profileImage;
 
     // Empty constructor
