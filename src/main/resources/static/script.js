@@ -90,6 +90,7 @@ async function registerUser() {
     }
 }
 
+
 async function loginUser() {
     let username = formatName(document.getElementById('login-username').value);
     let password = document.getElementById('login-password').value;
@@ -175,18 +176,12 @@ async function loadUserProfile() {
         if(welcomeName) welcomeName.innerText = fullName;
         if(cardHolder) cardHolder.innerText = fullName.toUpperCase();
 
-        // Render the uploaded profile picture URL or a clean fallback silhouette
+        // Render the uploaded profile picture URL
         let headerAvatar = document.getElementById('header-avatar');
         if (headerAvatar) {
-            if (profile.profileImage && profile.profileImage.trim() !== "" && !profile.profileImage.includes("default")) {
+            if (profile.profileImage && profile.profileImage.trim() !== "") {
                 headerAvatar.src = profile.profileImage;
-
-                // If the live S3 image link somehow fails to load, gracefully swap to the silhouette
-                headerAvatar.onerror = function() {
-                    headerAvatar.src = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
-                };
             } else {
-                // Clean default silhouette when no picture was uploaded
                 headerAvatar.src = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
             }
         }
