@@ -193,20 +193,114 @@ public class TransactionController {
         return repository.findByUsernameIgnoreCase(capitalize(username.trim()));
     }
 
-    @GetMapping("/exchange-rates")
-    public String getExchangeRates() {
-        try {
-            // Spring Boot backend acts as a cloud gateway/proxy fetching live rates
-            String url = "https://api.frankfurter.dev/v1/latest?base=ZAR&symbols=USD,EUR,GBP";
-            java.net.URI uri = java.net.URI.create(url);
-            String jsonResponse = new String(uri.toURL().openStream().readAllBytes());
 
-            // Simple parsing to extract rates or return clean formatted string
-            // (For a robust demo, we can parse or format it cleanly)
-            return "🇺🇸 USD: R18.25 | 🇪🇺 EUR: R19.80 | 🇬🇧 GBP: R23.50 (Live Cloud Gateway)";
+    @GetMapping("/statement")
+    public void downloadStatement(@RequestParam String username, jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+        String cleanName = capitalize(username.trim());
+        List<Transaction> history = repository.findByUsernameIgnoreCase(cleanName);
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=Zionex_Financial_Statement_" + cleanName + ".pdf");
+
+        try {
+            com.lowagie.text.Document document = new com.lowagie.text.Document(com.lowagie.text.PageSize.A4);
+            com.lowagie.text.pdf.PdfWriter.getInstance(document, response.getOutputStream());
+            document.open();
+
+            // --- HEADER TABLE: LOGO (LEFT) & TITLE (RIGHT SIDE-BY-SIDE) ---
+            com.lowagie.text.pdf.PdfPTable headerTable = new com.lowagie.text.pdf.PdfPTable(2);
+            headerTable.setWidthPercentage(100);
+            headerTable.setWidths(new float[]{1.5f, 8.5f});
+            headerTable.getDefaultCell().setBorder(com.lowagie.text.pdf.PdfPCell.NO_BORDER);
+
+            // Left Cell: Logo Image
+            com.lowagie.text.pdf.PdfPCell logoCell = new com.lowagie.text.pdf.PdfPCell();
+            logoCell.setBorder(com.lowagie.text.pdf.PdfPCell.NO_BORDER);
+            try {
+                java.net.URL logoUrl = getClass().getClassLoader().getResource("static/logo.png");
+                if (logoUrl != null) {
+                    com.lowagie.text.Image logo = com.lowagie.text.Image.getInstance(logoUrl);
+                    logo.scaleToFit(45, 45);
+                    logoCell.addElement(logo);
+                }
+            } catch (Exception imgEx) {
+                // Fallback if logo is missing
+            }
+            headerTable.addCell(logoCell);
+
+            // Right Cell: Title & Tagline next to the logo
+            com.lowagie.text.pdf.PdfPCell titleCell = new com.lowagie.text.pdf.PdfPCell();
+            titleCell.setBorder(com.lowagie.text.pdf.PdfPCell.NO_BORDER);
+            titleCell.setVerticalAlignment(com.lowagie.text.Element.ALIGN_MIDDLE);
+
+            com.lowagie.text.Font titleFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 16, com.lowagie.text.Font.BOLD, new java.awt.Color(0, 75, 35));
+            com.lowagie.text.Font subFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 9, com.lowagie.text.Font.NORMAL, java.awt.Color.DARK_GRAY);
+
+            titleCell.addElement(new com.lowagie.text.Phrase("ZIONEX FINANCIAL", titleFont));
+            titleCell.addElement(new com.lowagie.text.Phrase("Growing your wealth, securing your future.", subFont));
+            headerTable.addCell(titleCell);
+
+            document.add(headerTable);
+            document.add(new com.lowagie.text.Paragraph("\n"));
+
+            // --- FETCH FULL USER DETAILS (NAME & SURNAME) ---
+            String fullName = cleanName;
+            for (Transaction tx : history) {
+                if (tx.getSurname() != null && !tx.getSurname().isEmpty()) {
+                    fullName = cleanName + " " + tx.getSurname();
+                    break;
+                }
+            }
+
+            // Document Account Holder Meta Info
+            com.lowagie.text.Font metaFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 10, com.lowagie.text.Font.BOLD, java.awt.Color.BLACK);
+            document.add(new com.lowagie.text.Paragraph("Official Account Statement", metaFont));
+            document.add(new com.lowagie.text.Paragraph("Account Holder: " + fullName, subFont));
+            document.add(new com.lowagie.text.Paragraph("Generated On: " + java.time.LocalDateTime.now().toString().replace("T", " "), subFont));
+            document.add(new com.lowagie.text.Paragraph("----------------------------------------------------------------------------------------------------------------------------------"));
+            document.add(new com.lowagie.text.Paragraph("\n"));
+
+            // Transaction Table
+            com.lowagie.text.pdf.PdfPTable table = new com.lowagie.text.pdf.PdfPTable(3);
+            table.setWidthPercentage(100);
+            table.setWidths(new float[]{3f, 4f, 3f});
+
+            // Table Headers
+            com.lowagie.text.Font headerFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 10, com.lowagie.text.Font.BOLD, java.awt.Color.WHITE);
+            String[] headers = {"Date & Time", "Transaction Type", "Amount (ZAR)"};
+            for (String header : headers) {
+                com.lowagie.text.pdf.PdfPCell cell = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Paragraph(header, headerFont));
+                cell.setBackgroundColor(new java.awt.Color(0, 168, 89));
+                cell.setPadding(8);
+                table.addCell(cell);
+            }
+
+            // Table Data Rows
+            com.lowagie.text.Font normalFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 10, com.lowagie.text.Font.NORMAL, java.awt.Color.BLACK);
+            for (Transaction tx : history) {
+                String dateStr = tx.getDate() != null ? tx.getDate().toString().replace("T", " ") : "N/A";
+
+                com.lowagie.text.pdf.PdfPCell dateCell = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Paragraph(dateStr, normalFont));
+                dateCell.setPadding(6);
+                table.addCell(dateCell);
+
+                com.lowagie.text.pdf.PdfPCell typeCell = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Paragraph(tx.getType(), normalFont));
+                typeCell.setPadding(6);
+                table.addCell(typeCell);
+
+                com.lowagie.text.pdf.PdfPCell amountCell = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Paragraph("R " + String.format("%.2f", tx.getAmount()), normalFont));
+                amountCell.setPadding(6);
+                table.addCell(amountCell);
+            }
+
+            document.add(table);
+
+            // Footer Note
+            document.add(new com.lowagie.text.Paragraph("\n\nThank you for banking with Zionex Financial. This is a secure computer-generated official document.", subFont));
+
+            document.close();
         } catch (Exception e) {
-            // Fallback microservice simulation
-            return "🇺🇸 USD: R18.25 | 🇪🇺 EUR: R19.80 | 🇬🇧 GBP: R23.50";
+            response.sendError(jakarta.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not generate PDF statement");
         }
     }
 }

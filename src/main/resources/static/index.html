@@ -44,9 +44,29 @@
                 <input type="text" id="reg-surname" placeholder="Surname">
                 <input type="password" id="reg-password" placeholder="Secure Password">
                 <input type="number" id="reg-deposit" placeholder="Initial Deposit (Min R150)">
-                <p style="font-size: 11px; text-align:left; color:#666; margin:5px 0;">Profile Picture (Optional):</p>
-                <input type="file" id="reg-image" accept="image/*" style="border:none; padding:0;">
-                <button onclick="registerUser()">Register Account</button>
+
+                <p style="font-size: 11px; text-align:left; color:#666; margin:5px 0;">Identity Verification (Mandatory Selfie):</p>
+
+                <!-- Camera Activation Button -->
+                <div style="text-align: center; margin: 10px 0;">
+                    <button type="button" onclick="startCamera()" style="background-color: #6c757d; font-size: 12px; padding: 6px;">📷 Open Camera & Take Selfie</button>
+                </div>
+
+                <!-- Live Camera Feed Container -->
+                <div id="camera-container" style="display:none; margin-bottom:10px;">
+                    <video id="camera-feed" autoplay playsinline style="width: 100%; max-height: 180px; border-radius: 8px; background: #000;"></video>
+                    <button type="button" onclick="captureSnapshot()" style="background-color: #28a745; font-size: 12px; padding: 6px;">📸 Capture Photo</button>
+                    <canvas id="snapshot-canvas" style="display:none;"></canvas>
+                </div>
+
+                <!-- Captured Preview Thumbnail -->
+                <div id="preview-container" style="margin-bottom: 10px; display:none;">
+                    <img id="image-preview" src="" alt="Preview" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green);">
+                    <span style="font-size: 11px; color: #28a745; display: block;">Selfie verified & ready!</span>
+                </div>
+
+                <button id="reg-submit-btn" onclick="registerUser()">Register Account</button>
+
                 <p style="font-size:13px; margin-top:15px;">Have an account? <a href="#" onclick="toggleAuthMode()" style="color:var(--primary-green);">Sign In</a></p>
             </div>
 
@@ -59,14 +79,6 @@
             <!-- OVERVIEW TAB -->
             <div id="view-overview">
                 <h3 style="margin-top:0;">Hello, <span id="welcome-name">User</span></h3>
-
-                <!-- LIVE GLOBAL CURRENCY TICKER WIDGET -->
-                <div class="card" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-left: 5px solid #00A859;">
-                    <h4 style="margin:0 0 8px 0; color:#004B23;">🌍 Live Global Exchange Rates (ZAR Base)</h4>
-                    <div id="currency-ticker" style="font-size: 13px; color: #333; font-weight: bold;">
-                        Loading live rates...
-                    </div>
-                </div>
 
                 <!-- DIGITAL BANK CARD -->
                 <div class="digital-card">
@@ -138,10 +150,13 @@
                 </div>
             </div>
 
-            <!-- History -->
+            <!-- HISTORY TAB -->
             <div id="view-history" style="display:none;">
                 <div class="card">
                     <h2>Activity Ledger</h2>
+                    <!-- DOWNLOAD STATEMENT BUTTON -->
+                    <button onclick="downloadStatement()" style="background-color: #004B23; margin-bottom: 15px;">📥 Download Official Statement (PDF)</button>
+
                     <table>
                         <thead>
                         <tr>

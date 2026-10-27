@@ -33,7 +33,6 @@ async function registerUser() {
     let surnameField = document.getElementById('reg-surname');
     let passwordField = document.getElementById('reg-password');
     let depositField = document.getElementById('reg-deposit');
-    let fileInput = document.getElementById('reg-image');
     let msgBox = document.getElementById('auth-msg');
 
     let username = formatName(usernameField.value);
@@ -47,20 +46,25 @@ async function registerUser() {
         return;
     }
 
+    // Strict validation: A live camera selfie must be captured
+    if (!capturedBlob) {
+        msgBox.className = "error-msg";
+        msgBox.innerText = "A live verification selfie is mandatory to open an account!";
+        return;
+    }
+
     let formData = new FormData();
     formData.append("username", username);
     formData.append("surname", surname);
     formData.append("password", password);
     formData.append("initialDeposit", deposit);
+    formData.append("profileImage", capturedBlob); // Attach the camera snapshot blob
 
-    if (fileInput.files && fileInput.files[0]) {
-        formData.append("profileImage", fileInput.files[0]);
+    let regButton = document.getElementById('reg-submit-btn');
+    if (regButton) {
+        regButton.disabled = true;
+        regButton.innerText = "Processing...";
     }
-
-    // Disable button to prevent double-click duplication glitches
-    let regButton = event.target;
-    regButton.disabled = true;
-    regButton.innerText = "Processing...";
 
     try {
         let response = await fetch('/api/transactions/register', {
@@ -72,21 +76,21 @@ async function registerUser() {
         if (result.startsWith("ERROR:")) {
             msgBox.className = "error-msg";
             msgBox.innerText = result.replace("ERROR:", "");
-            regButton.disabled = false;
-            regButton.innerText = "Register Account";
+            if (regButton) { regButton.disabled = false; regButton.innerText = "Register Account"; }
         } else {
             msgBox.className = "success-msg";
             msgBox.innerText = "Account created successfully! Please sign in.";
             setTimeout(() => {
                 toggleAuthMode();
-                regButton.disabled = false;
-                regButton.innerText = "Register Account";
+                if (regButton) { regButton.disabled = false; regButton.innerText = "Register Account"; }
+                capturedBlob = null; // Clear memory
             }, 1000);
         }
     } catch (err) {
         console.error("Registration error:", err);
-        regButton.disabled = false;
-        regButton.innerText = "Register Account";
+        msgBox.className = "error-msg";
+        msgBox.innerText = "Network error during registration.";
+        if (regButton) { regButton.disabled = false; regButton.innerText = "Register Account"; }
     }
 }
 
@@ -122,7 +126,11 @@ async function loginUser() {
             switchView('overview');
         }
     } catch (err) {
-        console.error(err);
+        console.error("Registration error:", err);
+        msgBox.className = "error-msg";
+        msgBox.innerText = "Server error or S3 connection timeout. Check terminal logs.";
+        regButton.disabled = false;
+        regButton.innerText = "Register Account";
     }
 }
 
@@ -261,6 +269,15 @@ async function performSavingsAction(type) {
     }
 }
 
+function downloadStatement() {
+    if (!currentUser) {
+        alert("Please log in first.");
+        return;
+    }
+    // Triggers direct browser download stream from backend PDF route
+    window.location.href = `/api/transactions/statement?username=${currentUser}`;
+}
+
 async function makeInvestment() {
     let amountEl = document.getElementById('invest-amount');
     let msgBox = document.getElementById('invest-msg');
@@ -336,21 +353,48 @@ async function fetchHistory() {
     }
 }
 
-async function fetchLiveCurrencyRates() {
-    try {
-        // Fetching securely through our own Spring Boot Cloud Gateway backend
-        let response = await fetch('/api/transactions/exchange-rates');
-        let rates = await response.text();
 
-        let ticker = document.getElementById('currency-ticker');
-        if (ticker) {
-            ticker.innerHTML = rates;
-        }
+let capturedBlob = null;
+
+async function startCamera() {
+    let container = document.getElementById('camera-container');
+    let video = document.getElementById('camera-feed');
+    container.style.display = 'block';
+
+    try {
+        let stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        video.srcObject = stream;
     } catch (err) {
-        console.error("Gateway error:", err);
-        let ticker = document.getElementById('currency-ticker');
-        if (ticker) {
-            ticker.innerHTML = `🇺🇸 USD: R18.25 | 🇪🇺 EUR: R19.80 | 🇬🇧 GBP: R23.50`;
-        }
+        alert("Unable to access camera. Please make sure camera permissions are allowed.");
+        console.error("Camera error:", err);
     }
+}
+
+function captureSnapshot() {
+    let video = document.getElementById('camera-feed');
+    let canvas = document.getElementById('snapshot-canvas');
+    let preview = document.getElementById('image-preview');
+    let previewContainer = document.getElementById('preview-container');
+
+    canvas.width = video.videoWidth || 320;
+    canvas.height = video.videoHeight || 240;
+
+    let ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Convert canvas image to a File object blob
+    canvas.toBlob(function(blob) {
+        capturedBlob = new File([blob], "selfie.jpg", { type: "image/jpeg" });
+
+        // Show preview
+        preview.src = URL.createObjectURL(blob);
+        previewContainer.style.display = 'block';
+
+        // Stop camera stream tracks
+        let stream = video.srcObject;
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        document.getElementById('camera-container').style.display = 'none';
+    }, 'image/jpeg');
 }
