@@ -12,3 +12,18 @@ COPY src/ src/
 
 # Build the fat executable JAR file
 RUN mvn clean package -DskipTests
+
+# ==========================================
+# STAGE 2: Run the application
+# ==========================================
+FROM eclipse-temurin:17-jdk-alpine
+WORKDIR /app
+
+# Copy ONLY the compiled JAR file from Stage 1 into this final runtime image
+COPY --from=build /app/target/*.jar app.jar
+
+# Expose port 8080 for web traffic
+EXPOSE 8080
+
+# Run the compiled Spring Boot JAR file (NOT maven!)
+ENTRYPOINT ["java", "-jar", "app.jar"]

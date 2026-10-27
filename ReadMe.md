@@ -120,22 +120,9 @@ BANK-Transactions/
    ```
 3. Open your browser and navigate to: **`http://localhost:8080`** *(Uses an embedded H2 memory database by default).*
 
-### Option 2: Run via Docker (Containerized Local Mode)
-*Prerequisites: Docker Desktop installed and running.*
-
-1. Build the multi-stage Docker container image:
-   ```bash
-   docker build -t zionex-finance-app .
-   ```
-2. Run the container and map port 8080:
-   ```bash
-   docker run -p 8080:8080 zionex-finance-app
-   ```
-3. Access the app at **`http://localhost:8080`**.
 
 ---
 
-```
 ### Option 1: Run Locally via Maven (Fastest Development Mode)
 *Prerequisites: Java 17+ installed.*
 
@@ -144,11 +131,13 @@ BANK-Transactions/
    ```bash
    mvn clean spring-boot:run
    ```
-3. Open your browser and navigate to: **`http://localhost:8080`** *(Uses an embedded H2 memory database by default).*
+
+3. Open your browser and navigate to: **`http://127.0.0.1:8080`** *(Uses an embedded H2 memory database by default).*
 
 ---
 
 ### 🧪 Testing the Backend API via Terminal (cURL)
+### Option 2:
 While your application is running (`mvn spring-boot:run`), you can test the underlying REST API endpoints directly from a second terminal window using `curl`:
 
 1. **Register a New Account via API:**
@@ -178,7 +167,7 @@ While your application is running (`mvn spring-boot:run`), you can test the unde
 
 ---
 
-### Option 2: Run via Docker (Containerized Local Mode)
+### Option 3: Run via Docker (Containerized Local Mode)
 *Prerequisites: Docker Desktop installed and running.*
 
 1. Build the multi-stage Docker container image:
@@ -189,8 +178,12 @@ While your application is running (`mvn spring-boot:run`), you can test the unde
    ```bash
    docker run -p 8080:8080 zionex-finance-app
    ```
-3. Access the app at **`http://localhost:8080`**.
-```
+3. Access the app at **`http://127.0.0.1:8080`**.
+4. Or find your WSL/PC IP address by running this quick command in your Ubuntu terminal:
+   code
+   ```Bash
+   hostname -I
+   ```
 ```
 
 WTC-Z2R5GGJK
