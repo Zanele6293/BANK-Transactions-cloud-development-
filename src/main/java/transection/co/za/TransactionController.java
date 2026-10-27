@@ -34,6 +34,31 @@ public class TransactionController {
         return null;
     }
 
+    @PostMapping("/register")
+    public Object register(@RequestParam("username") String username,
+                           @RequestParam("surname") String surname,
+                           @RequestParam("password") String password,
+                           @RequestParam("initialDeposit") double initialDeposit,
+                           @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) {
+
+        String cleanName = capitalize(username.trim());
+
+        // Strict guard: Check if user already exists
+        if (findUserAccount(cleanName) != null) {
+            return "ERROR:Account already exists! Please log in.";
+        }
+
+        if (initialDeposit < 150.0) {
+            return "ERROR:Minimum opening deposit is R150.00";
+        }
+
+        // Upload picture to S3 (or fallback)
+        String imageUrl = s3Service.uploadProfilePicture(profileImage);
+        String cleanSurname = capitalize(surname.trim());
+
+        Transaction tx = new Transaction(cleanName, cleanSurname, password, "INITIAL_DEPOSIT", initialDeposit, LocalDate.now(), imageUrl);
+        return repository.save(tx);
+    }
 
     @PostMapping("/login")
     public Object login(@RequestParam String username, @RequestParam String password) {
