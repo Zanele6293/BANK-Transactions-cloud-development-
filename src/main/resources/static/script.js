@@ -194,6 +194,7 @@ async function loadUserProfile() {
         console.error("Error loading profile:", err);
     }
     fetchBalances();
+    fetchLiveCurrencyRates()
 }
 
 async function fetchBalances() {
@@ -332,5 +333,24 @@ async function fetchHistory() {
         });
     } catch (err) {
         console.error("Error fetching history:", err);
+    }
+}
+
+async function fetchLiveCurrencyRates() {
+    try {
+        // Fetching securely through our own Spring Boot Cloud Gateway backend
+        let response = await fetch('/api/transactions/exchange-rates');
+        let rates = await response.text();
+
+        let ticker = document.getElementById('currency-ticker');
+        if (ticker) {
+            ticker.innerHTML = rates;
+        }
+    } catch (err) {
+        console.error("Gateway error:", err);
+        let ticker = document.getElementById('currency-ticker');
+        if (ticker) {
+            ticker.innerHTML = `🇺🇸 USD: R18.25 | 🇪🇺 EUR: R19.80 | 🇬🇧 GBP: R23.50`;
+        }
     }
 }
