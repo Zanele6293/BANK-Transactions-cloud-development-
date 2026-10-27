@@ -135,20 +135,6 @@ BANK-Transactions/
 
 ---
 
-## ☁️ Cloud Deployment (AWS Elastic Beanstalk)
-
-This application is structurally pre-configured for production hosting on **AWS Elastic Beanstalk (Single-Instance Docker Environment)**:
-
-1. Package your project source code into a clean `.zip` archive (excluding `target/` and `.git/`).
-2. Log into the **AWS Elastic Beanstalk Console**.
-3. Create a new application, select the **Docker** platform branch (Amazon Linux 2/2023), and upload your `.zip` archive.
-4. Set environment variables on the Beanstalk configuration panel (e.g., `DB_URL` pointing to an **AWS RDS PostgreSQL** instance, along with your AWS S3 bucket parameters).
-5. Launch the environment. Elastic Beanstalk will automatically provision compute resources, build the container, and provide a live public HTTPS URL.
-
----
-*Developed for WeThinkCode_ Cloud Development Elective Evaluation.*
-```
-
 ```
 ### Option 1: Run Locally via Maven (Fastest Development Mode)
 *Prerequisites: Java 17+ installed.*
