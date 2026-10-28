@@ -176,7 +176,12 @@ While your application is running (`mvn spring-boot:run`), you can test the unde
    ```
 2. Run the container and map port 8080:
    ```bash
-   docker run -p 8080:8080 zionex-finance-app
+   docker run -p 8080:8080 \
+   -e AWS_ACCESS_KEY_ID=YOUR_AWS_ACCESS_KEY \
+   -e AWS_SECRET_ACCESS_KEY=YOUR_AWS_SECRET_KEY \
+   -e AWS_REGION=us-east-1 \
+   -e BUCKET_NAME=your-bucket-name \
+   zionex-finance-app
    ```
 3. Access the app at **`http://127.0.0.1:8080`**.
 4. Or find your WSL/PC IP address by running this quick command in your Ubuntu terminal:

@@ -303,4 +303,9 @@ public class TransactionController {
             response.sendError(jakarta.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not generate PDF statement");
         }
     }
+
+    @GetMapping("/")
+    public String index() {
+        return "forward:/index.html";
+    }
 }
