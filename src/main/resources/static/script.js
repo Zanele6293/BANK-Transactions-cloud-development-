@@ -226,22 +226,32 @@ async function performCurrentAction(type) {
     let msgBox = document.getElementById('current-msg');
     let amount = amountEl ? amountEl.value : "";
 
-    if (!amount) { if(msgBox) msgBox.innerText = "Enter amount"; return; }
+    if (!amount || amount <= 0) {
+        if(msgBox) { msgBox.innerText = "Please enter a valid amount."; msgBox.className = "error-msg"; }
+        return;
+    }
 
     let formData = new URLSearchParams();
     formData.append("username", currentUser);
     formData.append("amount", amount);
 
     let endpoint = type === 'income' ? '/api/transactions/current/income' : '/api/transactions/current/expense';
-    let response = await fetch(endpoint, { method: 'POST', body: formData });
-    let result = await response.text();
 
-    if (result.startsWith("ERROR:")) {
-        if(msgBox) { msgBox.className = "error-msg"; msgBox.innerText = result.replace("ERROR:", ""); }
-    } else {
-        if(msgBox) msgBox.innerText = "";
-        if(amountEl) amountEl.value = "";
-        fetchBalances();
+    try {
+        let response = await fetch(endpoint, { method: 'POST', body: formData });
+        let result = await response.text();
+
+        if (result.includes("ERROR:")) {
+            msgBox.className = "error-msg";
+            msgBox.innerText = result.replace("ERROR:", ""); // Cleans the "ERROR:" prefix
+        } else {
+            msgBox.className = "success-msg";
+            msgBox.innerText = "Transaction successful!";
+            amountEl.value = "";
+            fetchBalances(); // Refresh the UI
+        }
+    } catch (err) {
+        msgBox.innerText = "Connection error.";
     }
 }
 

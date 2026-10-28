@@ -56,6 +56,17 @@
             <version>2.20.56</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>10.7.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+            <version>10.7.1</version>
+        </dependency>
+
         <!-- OpenPDF Library for Dynamic PDF Statement Generation -->
         <dependency>
             <groupId>com.github.librepdf</groupId>

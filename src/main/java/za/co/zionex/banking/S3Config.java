@@ -1,4 +1,4 @@
-package transection.co.za;
+package za.co.zionex.banking;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -85,7 +85,7 @@ The system follows a classic **3-Tier Cloud-Native Architecture**, ensuring tota
 BANK-Transactions/
 ├── src/
 │   ├── main/
-│   │   ├── java/transection/co.za/
+│   │   ├── java/za/co/zionex/banking/
 │   │   │   ├── Main.java                 # Spring Boot Entry Point
 │   │   │   ├── Transaction.java          # JPA Database Entity Model
 │   │   │   ├── TransactionRepository.java# JPQL Aggregation Queries & Data Access

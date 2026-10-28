@@ -34,8 +34,8 @@ nohup: ignoring input
  =========|_|==============|___/=/_/_/_/
  :: Spring Boot ::                (v3.2.5)
 
-2026-10-26T19:02:08.586+02:00  INFO 28346 --- [           main] transection.co.za.Main                   : Starting Main using Java 21.0.12.1 with PID 28346 (/mnt/c/Users/User/Documents/Github_projects/BANK-Transections/target/classes started by zanele_dev in /mnt/c/Users/User/Documents/Github_projects/BANK-Transections)
-2026-10-26T19:02:08.593+02:00  INFO 28346 --- [           main] transection.co.za.Main                   : No active profile set, falling back to 1 default profile: "default"
+2026-10-26T19:02:08.586+02:00  INFO 28346 --- [           main] za.co.zionex.banking.Main                   : Starting Main using Java 21.0.12.1 with PID 28346 (/mnt/c/Users/User/Documents/Github_projects/BANK-Transections/target/classes started by zanele_dev in /mnt/c/Users/User/Documents/Github_projects/BANK-Transections)
+2026-10-26T19:02:08.593+02:00  INFO 28346 --- [           main] za.co.zionex.banking.Main                   : No active profile set, falling back to 1 default profile: "default"
 2026-10-26T19:02:12.439+02:00  INFO 28346 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
 2026-10-26T19:02:12.874+02:00  INFO 28346 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 382 ms. Found 1 JPA repository interface.
 2026-10-26T19:02:16.267+02:00  INFO 28346 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)

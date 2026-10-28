@@ -1,4 +1,4 @@
-package transection.co.za;
+package za.co.zionex.banking;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
