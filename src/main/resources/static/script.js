@@ -46,10 +46,10 @@ async function registerUser() {
         return;
     }
 
-    // Strict validation: A live camera selfie must be captured
+    // A profile picture is required to complete registration.
     if (!capturedBlob) {
         msgBox.className = "error-msg";
-        msgBox.innerText = "A live verification selfie is mandatory to open an account!";
+        msgBox.innerText = "Please choose a profile picture to open an account.";
         return;
     }
 
@@ -58,7 +58,7 @@ async function registerUser() {
     formData.append("surname", surname);
     formData.append("password", password);
     formData.append("initialDeposit", deposit);
-    formData.append("profileImage", capturedBlob); // Attach the camera snapshot blob
+    formData.append("profileImage", capturedBlob);
 
     let regButton = document.getElementById('reg-submit-btn');
     if (regButton) {
@@ -83,7 +83,7 @@ async function registerUser() {
             setTimeout(() => {
                 toggleAuthMode();
                 if (regButton) { regButton.disabled = false; regButton.innerText = "Register Account"; }
-                capturedBlob = null; // Clear memory
+                clearProfileImage();
             }, 1000);
         }
     } catch (err) {
@@ -342,69 +342,145 @@ async function fetchInvestments() {
 async function fetchHistory() {
     try {
         let response = await fetch(`/api/transactions/history?username=${currentUser}`);
+        if (!response.ok) throw new Error(`History request failed: ${response.status}`);
         let history = await response.json();
-
         let tbody = document.getElementById('history-table-body');
         if(!tbody) return;
-        tbody.innerHTML = "";
+        tbody.replaceChildren();
 
-        if (!history) return;
+        let currentAccountTypes = {
+            INITIAL_DEPOSIT: { description: "Opening deposit", type: "credit" },
+            CURRENT_INCOME: { description: "Deposit", type: "credit" },
+            CURRENT_EXPENSE: { description: "Withdrawal", type: "debit" },
+            SAVINGS_TRANSFER_OUT: { description: "Transfer to savings", type: "debit" },
+            INVESTMENT: { description: "Investment", type: "debit" },
+            MATURED_PAYOUT: { description: "Investment maturity payout", type: "credit" }
+        };
+        let transactions = (history || [])
+            .filter(tx => currentAccountTypes[tx.type])
+            .sort((a, b) => (a.date || "").localeCompare(b.date || "") || (a.id || 0) - (b.id || 0));
+        let totalDebits = 0;
+        let totalCredits = 0;
+        let balance = 0;
 
-        history.forEach(tx => {
-            let row = `<tr>
-                <td>${tx.date || ''}</td>
-                <td><b>${tx.type || ''}</b></td>
-                <td>R ${parseFloat(tx.amount || 0).toFixed(2)}</td>
-            </tr>`;
-            tbody.innerHTML += row;
+        transactions.forEach(tx => {
+            let amount = Number(tx.amount) || 0;
+            let transactionType = currentAccountTypes[tx.type];
+            let debit = transactionType.type === "debit" ? amount : 0;
+            let credit = transactionType.type === "credit" ? amount : 0;
+            totalDebits += debit;
+            totalCredits += credit;
+            balance += credit - debit;
+
+            let row = document.createElement('tr');
+            let dateCell = document.createElement('td');
+            dateCell.dataset.label = "Date";
+            dateCell.textContent = formatStatementDate(tx.date);
+            row.appendChild(dateCell);
+
+            let descriptionCell = document.createElement('td');
+            descriptionCell.dataset.label = "Description";
+            descriptionCell.textContent = transactionType.description;
+            row.appendChild(descriptionCell);
+
+            let debitCell = document.createElement('td');
+            debitCell.dataset.label = "Debit";
+            debitCell.className = "statement-debit";
+            debitCell.textContent = debit ? formatStatementCurrency(debit) : "—";
+            row.appendChild(debitCell);
+
+            let creditCell = document.createElement('td');
+            creditCell.dataset.label = "Credit";
+            creditCell.className = "statement-credit";
+            creditCell.textContent = credit ? formatStatementCurrency(credit) : "—";
+            row.appendChild(creditCell);
+
+            let balanceCell = document.createElement('td');
+            balanceCell.dataset.label = "Balance";
+            balanceCell.className = "statement-balance";
+            balanceCell.textContent = formatStatementCurrency(balance);
+            row.appendChild(balanceCell);
+            tbody.appendChild(row);
         });
+
+        if (!transactions.length) {
+            let row = document.createElement('tr');
+            let cell = document.createElement('td');
+            cell.colSpan = 5;
+            cell.className = "statement-empty";
+            cell.textContent = "No current-account transactions yet.";
+            row.appendChild(cell);
+            tbody.appendChild(row);
+        }
+
+        let today = getLocalStatementDate();
+        let startDate = transactions.length ? formatStatementDate(transactions[0].date) : formatStatementDate(today);
+        document.getElementById('statement-holder').textContent = `Account holder: ${document.getElementById('header-name').textContent}`;
+        document.getElementById('statement-period').textContent = `From ${startDate} to ${formatStatementDate(today)}`;
+        document.getElementById('statement-opening').textContent = formatStatementCurrency(0);
+        document.getElementById('statement-debits').textContent = formatStatementCurrency(totalDebits);
+        document.getElementById('statement-credits').textContent = formatStatementCurrency(totalCredits);
+        document.getElementById('statement-closing').textContent = formatStatementCurrency(balance);
     } catch (err) {
         console.error("Error fetching history:", err);
     }
 }
 
-
-let capturedBlob = null;
-
-async function startCamera() {
-    let container = document.getElementById('camera-container');
-    let video = document.getElementById('camera-feed');
-    container.style.display = 'block';
-
-    try {
-        let stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-        video.srcObject = stream;
-    } catch (err) {
-        alert("Unable to access camera. Please make sure camera permissions are allowed.");
-        console.error("Camera error:", err);
-    }
+function formatStatementCurrency(amount) {
+    return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(amount);
 }
 
-function captureSnapshot() {
-    let video = document.getElementById('camera-feed');
-    let canvas = document.getElementById('snapshot-canvas');
-    let preview = document.getElementById('image-preview');
-    let previewContainer = document.getElementById('preview-container');
+function formatStatementDate(value) {
+    if (!value) return "—";
+    let date = new Date(`${value}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return value;
+    return new Intl.DateTimeFormat('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
+}
 
-    canvas.width = video.videoWidth || 320;
-    canvas.height = video.videoHeight || 240;
+function getLocalStatementDate() {
+    let today = new Date();
+    let month = String(today.getMonth() + 1).padStart(2, '0');
+    let day = String(today.getDate()).padStart(2, '0');
+    return `${today.getFullYear()}-${month}-${day}`;
+}
 
-    let ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    // Convert canvas image to a File object blob
-    canvas.toBlob(function(blob) {
-        capturedBlob = new File([blob], "selfie.jpg", { type: "image/jpeg" });
+let capturedBlob = null;
+let profileImagePreviewUrl = null;
 
-        // Show preview
-        preview.src = URL.createObjectURL(blob);
-        previewContainer.style.display = 'block';
+function handleProfileImageSelection(event) {
+    let input = event.target;
+    let file = input.files && input.files[0];
+    if (!file) return;
 
-        // Stop camera stream tracks
-        let stream = video.srcObject;
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-        }
-        document.getElementById('camera-container').style.display = 'none';
-    }, 'image/jpeg');
+    let msgBox = document.getElementById('auth-msg');
+    if (!file.type || !file.type.startsWith('image/')) {
+        msgBox.className = "error-msg";
+        msgBox.innerText = "Please choose a valid image file.";
+        input.value = "";
+        return;
+    }
+
+    capturedBlob = file;
+    if (profileImagePreviewUrl) URL.revokeObjectURL(profileImagePreviewUrl);
+    profileImagePreviewUrl = URL.createObjectURL(file);
+
+    document.getElementById('image-preview').src = profileImagePreviewUrl;
+    document.getElementById('preview-container').style.display = 'block';
+    document.getElementById('profile-image-button').style.display = 'none';
+    input.value = "";
+    msgBox.innerText = "";
+}
+
+function clearProfileImage() {
+    capturedBlob = null;
+    if (profileImagePreviewUrl) {
+        URL.revokeObjectURL(profileImagePreviewUrl);
+        profileImagePreviewUrl = null;
+    }
+
+    document.getElementById('profile-image-input').value = "";
+    document.getElementById('image-preview').src = "";
+    document.getElementById('preview-container').style.display = 'none';
+    document.getElementById('profile-image-button').style.display = 'block';
 }

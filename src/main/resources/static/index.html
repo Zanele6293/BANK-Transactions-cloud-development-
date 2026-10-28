@@ -45,24 +45,14 @@
                 <input type="password" id="reg-password" placeholder="Secure Password">
                 <input type="number" id="reg-deposit" placeholder="Initial Deposit (Min R150)">
 
-                <p style="font-size: 11px; text-align:left; color:#666; margin:5px 0;">Identity Verification (Mandatory Selfie):</p>
+                <p style="font-size: 11px; text-align:left; color:#666; margin:5px 0;">Profile picture (required):</p>
+                <input type="file" id="profile-image-input" accept="image/*" onchange="handleProfileImageSelection(event)" style="display:none;">
+                <button type="button" id="profile-image-button" onclick="document.getElementById('profile-image-input').click()" style="background-color: #6c757d; font-size: 12px; padding: 6px;">Choose a picture</button>
 
-                <!-- Camera Activation Button -->
-                <div style="text-align: center; margin: 10px 0;">
-                    <button type="button" onclick="startCamera()" style="background-color: #6c757d; font-size: 12px; padding: 6px;">📷 Open Camera & Take Selfie</button>
-                </div>
-
-                <!-- Live Camera Feed Container -->
-                <div id="camera-container" style="display:none; margin-bottom:10px;">
-                    <video id="camera-feed" autoplay playsinline style="width: 100%; max-height: 180px; border-radius: 8px; background: #000;"></video>
-                    <button type="button" onclick="captureSnapshot()" style="background-color: #28a745; font-size: 12px; padding: 6px;">📸 Capture Photo</button>
-                    <canvas id="snapshot-canvas" style="display:none;"></canvas>
-                </div>
-
-                <!-- Captured Preview Thumbnail -->
-                <div id="preview-container" style="margin-bottom: 10px; display:none;">
-                    <img id="image-preview" src="" alt="Preview" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green);">
-                    <span style="font-size: 11px; color: #28a745; display: block;">Selfie verified & ready!</span>
+                <div id="preview-container" class="profile-image-preview" style="display:none;">
+                    <img id="image-preview" src="" alt="Selected profile picture preview">
+                    <span class="success-msg">Picture ready to use</span>
+                    <button type="button" onclick="document.getElementById('profile-image-input').click()" class="secondary">Choose another picture</button>
                 </div>
 
                 <button id="reg-submit-btn" onclick="registerUser()">Register Account</button>
@@ -152,21 +142,36 @@
 
             <!-- HISTORY TAB -->
             <div id="view-history" style="display:none;">
-                <div class="card">
-                    <h2>Activity Ledger</h2>
-                    <!-- DOWNLOAD STATEMENT BUTTON -->
-                    <button onclick="downloadStatement()" style="background-color: #004B23; margin-bottom: 15px;">📥 Download Official Statement (PDF)</button>
+                <div class="card statement-card">
+                    <h2>Account statement</h2>
+                    <p class="statement-caption">Current account · South African rand (ZAR)</p>
+                    <div class="statement-meta">
+                        <span id="statement-holder">Account holder</span>
+                        <span id="statement-period"></span>
+                    </div>
+                    <button class="statement-download" onclick="downloadStatement()">Download PDF statement</button>
 
-                    <table>
+                    <div class="statement-summary">
+                        <div><span>Opening balance</span><strong id="statement-opening">R 0.00</strong></div>
+                        <div><span>Total debits</span><strong id="statement-debits">R 0.00</strong></div>
+                        <div><span>Total credits</span><strong id="statement-credits">R 0.00</strong></div>
+                        <div><span>Closing balance</span><strong id="statement-closing">R 0.00</strong></div>
+                    </div>
+
+                    <div class="statement-table-wrap">
+                    <table class="statement-table">
                         <thead>
                         <tr>
                             <th>Date</th>
-                            <th>Type</th>
-                            <th>Amount</th>
+                            <th>Description</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                            <th>Balance</th>
                         </tr>
                         </thead>
                         <tbody id="history-table-body"></tbody>
                     </table>
+                    </div>
                 </div>
             </div>
 
