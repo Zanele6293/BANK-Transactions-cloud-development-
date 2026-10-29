@@ -2,6 +2,12 @@
 ---
 
 ```markdown
+
+## 🌐 Live Demo
+You can view the live application here:
+http://zionex-financial-env-1.eba-zdkg9stw.us-east-1.elasticbeanstalk.com/ 
+
+
 # 🌲 Zionex Financial — Cloud-Native Mobile Banking Platform
 
 [![Java 17+](https://img.shields.io/badge/Java-17%20%7C%2021-orange.svg)](https://www.oracle.com/java/)
